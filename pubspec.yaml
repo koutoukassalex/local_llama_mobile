@@ -1,0 +1,27 @@
+name: local_llama_mobile
+description: A production-grade fully offline local AI chatbot mobile application running llama.cpp.
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.5
+  provider: ^6.1.1
+  uuid: ^4.3.3
+  path_provider: ^2.1.2
+  file_picker: ^8.0.5
+  path: ^1.9.0
+  ffi: ^2.1.2
+  intl: ^0.18.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
+
+flutter:
+  uses-material-design: true
