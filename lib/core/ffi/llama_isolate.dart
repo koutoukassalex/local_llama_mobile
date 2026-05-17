@@ -97,11 +97,37 @@ class LlamaIsolateManager {
 
     _statusController.add(LlamaStatusEvent(status: "Starting native engine isolate...", isReady: false));
 
+    final errorPort = ReceivePort();
+    final exitPort = ReceivePort();
+
     _isolate = await Isolate.spawn(
       _isolateEntryPoint,
       _receivePort.sendPort,
       debugName: 'LlamaInferenceIsolate',
+      errorsAreFatal: true,
+      onExit: exitPort.sendPort,
+      onError: errorPort.sendPort,
     );
+
+    // Listen to exit port
+    exitPort.listen((message) {
+      _statusController.add(LlamaStatusEvent(
+        status: "Fatal Error: Background engine exited unexpectedly or crashed.",
+        isReady: false,
+      ));
+      _isInitialized = false;
+    });
+
+    // Listen to error port
+    errorPort.listen((message) {
+      final error = message as List;
+      final errorMsg = error[0] as String;
+      _statusController.add(LlamaStatusEvent(
+        status: "Fatal Error: Background engine crashed: $errorMsg",
+        isReady: false,
+      ));
+      _isInitialized = false;
+    });
 
     // Listen to messages returning from the isolate
     _receivePort.listen((message) {
@@ -157,16 +183,40 @@ class LlamaIsolateManager {
     final isolateReceivePort = ReceivePort();
     mainSendPort.send(isolateReceivePort.sendPort);
 
-    // Instantiate native binding within the isolate scope
-    final nativeLlama = NativeLlama.instance;
-    nativeLlama.backendInit();
-
     LlamaModelPtr modelPtr = nullptr;
     LlamaContextPtr ctxPtr = nullptr;
+    NativeLlama? nativeLlama;
+
+    try {
+      // Instantiate native binding within the isolate scope
+      nativeLlama = NativeLlama.instance;
+      nativeLlama.backendInit();
+    } catch (e) {
+      mainSendPort.send(LlamaStatusEvent(
+        status: "Fatal Error: Native engine failed to initialize: $e",
+        isReady: false,
+      ));
+    }
 
     _currentIsolateSendPort = mainSendPort;
 
     isolateReceivePort.listen((message) {
+      if (nativeLlama == null) {
+        if (message is LoadModelCommand) {
+          mainSendPort.send(LlamaStatusEvent(
+            status: "Error: Cannot load model. Native engine is uninitialized.",
+            isReady: false,
+          ));
+        } else if (message is GenerateCommand) {
+          mainSendPort.send(LlamaStreamEvent(
+            token: "",
+            isFinished: true,
+            error: "Error: Generation failed. Native engine is uninitialized.",
+          ));
+        }
+        return;
+      }
+
       if (message is LoadModelCommand) {
         try {
           mainSendPort.send(LlamaStatusEvent(status: "Loading GGUF model binary...", isReady: false));
