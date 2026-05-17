@@ -258,7 +258,7 @@ class _SetupScreenState extends State<SetupScreen> with SingleTickerProviderStat
                         theme: theme,
                       ),
                       _buildSpecItem(
-                        icon: Icons.cpu_rounded,
+                        icon: Icons.memory_rounded,
                         label: "Processor Compute Cores",
                         value: "$_cpuCores Cores Detected",
                         statusText: _cpuCores >= 8 
