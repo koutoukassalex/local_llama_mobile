@@ -8,7 +8,7 @@ Pod::Spec.new do |s|
   s.author           = { 'koutoukassalex' => 'koutoukassalex@github.com' }
   s.source           = { :path => '.' }
   s.platform         = :ios, '13.0'
-  s.static_framework = false
+  s.static_framework = true
 
   # Relative paths from this podspec location (native/ios/) to the C++ sources
   cpp_root = '../../android/app/src/main/cpp'
@@ -95,6 +95,11 @@ Pod::Spec.new do |s|
     'CLANG_CXX_LANGUAGE_STANDARD' => 'c++17',
     'OTHER_CFLAGS' => '-fno-objc-arc -w',
     'OTHER_CPLUSPLUSFLAGS' => '-fno-objc-arc -w -std=c++17',
+  }
+
+  # Force the application (Runner) to link our FFI symbols, preventing dead-code stripping
+  s.user_target_xcconfig = {
+    'OTHER_LDFLAGS' => '-Wl,-u,_llama_backend_init_mobile -Wl,-u,_llama_model_load_from_file_mobile -Wl,-u,_llama_context_create_mobile -Wl,-u,_llama_inference_stream_mobile -Wl,-u,_llama_context_free_mobile -Wl,-u,_llama_model_free_mobile -Wl,-u,_llama_kv_cache_clear_mobile'
   }
 
   # ---- System frameworks ----
