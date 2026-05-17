@@ -32,6 +32,12 @@ class ChatService extends ChangeNotifier {
   double _temperature = 0.7;
   double _topP = 0.9;
   int _topK = 40;
+  String _systemPrompt = "You are a helpful, respectful, and fully offline AI mobile assistant. Respond accurately and concisely.";
+
+  // Hardware Parameters
+  int _nCtx = 2048;
+  int _nGpuLayers = 99;
+  int _nThreads = 4;
 
   double get temperature => _temperature;
   set temperature(double value) {
@@ -49,6 +55,51 @@ class ChatService extends ChangeNotifier {
   set topK(int value) {
     _topK = value;
     notifyListeners();
+  }
+
+  String get systemPrompt => _systemPrompt;
+  set systemPrompt(String value) {
+    _systemPrompt = value;
+    notifyListeners();
+  }
+
+  int get nCtx => _nCtx;
+  set nCtx(int value) {
+    if (_nCtx != value) {
+      _nCtx = value;
+      notifyListeners();
+      _reloadModelIfActive();
+    }
+  }
+
+  int get nGpuLayers => _nGpuLayers;
+  set nGpuLayers(int value) {
+    if (_nGpuLayers != value) {
+      _nGpuLayers = value;
+      notifyListeners();
+      _reloadModelIfActive();
+    }
+  }
+
+  int get nThreads => _nThreads;
+  set nThreads(int value) {
+    if (_nThreads != value) {
+      _nThreads = value;
+      notifyListeners();
+      _reloadModelIfActive();
+    }
+  }
+
+  void _reloadModelIfActive() {
+    if (_activeModel != null) {
+      // Background isolate will handle unloading the previous context
+      _isolateManager.loadModel(
+        _activeModel!.path,
+        nCtx: _nCtx,
+        nGpuLayers: _nGpuLayers,
+        nThreads: _nThreads,
+      );
+    }
   }
 
   bool _isGenerating = false;
@@ -134,8 +185,9 @@ class ChatService extends ChangeNotifier {
     _activeModel = model;
     _isolateManager.loadModel(
       model.path,
-      nCtx: 2048,
-      nGpuLayers: 99, // Automatic full offloading to Vulkan/Metal
+      nCtx: _nCtx,
+      nGpuLayers: _nGpuLayers,
+      nThreads: _nThreads,
     );
     notifyListeners();
   }
@@ -182,9 +234,8 @@ class ChatService extends ChangeNotifier {
     notifyListeners();
 
     // 2. Format Context using GGUF Model Specific Template
-    final systemPrompt = "You are a helpful, respectful, and fully offline AI mobile assistant. Respond accurately and concisely.";
     final List<Map<String, String>> history = [
-      {'role': 'system', 'content': systemPrompt}
+      {'role': 'system', 'content': _systemPrompt}
     ];
 
     // Collect last 6 messages to stay within context windows and minimize prompt processing cost

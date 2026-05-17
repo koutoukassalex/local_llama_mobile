@@ -13,6 +13,7 @@ import 'core/models/chat_message.dart';
 import 'core/models/chat_session.dart';
 import 'core/models/gguf_model.dart';
 import 'core/services/setup_screen.dart';
+import 'core/ui/settings_sheet.dart';
 import 'package:path_provider/path_provider.dart';
 
 void main() {
@@ -281,6 +282,83 @@ final List<AppThemeProfile> appThemesList = [
     ),
     textPrimary: const Color(0xFFF8FAFC),
     textSecondary: const Color(0xFFCBD5E1),
+  ),
+  AppThemeProfile(
+    name: "Neon Cyberpunk",
+    scaffoldBg: const Color(0xFF0A0014),
+    backgroundGradient: const LinearGradient(
+      colors: [Color(0xFF0A0014), Color(0xFF220033)],
+      begin: Alignment.topCenter,
+      end: Alignment.bottomCenter,
+    ),
+    cardBg: const Color(0xFF150022),
+    primaryAccent: const Color(0xFF00FFCC), // Cyber Cyan
+    secondaryAccent: const Color(0xFFFF003C), // Neon Pink
+    bubbleGradient: const LinearGradient(
+      colors: [Color(0xFF00FFCC), Color(0xFF5500FF)],
+      begin: Alignment.topLeft,
+      end: Alignment.bottomRight,
+    ),
+    textPrimary: const Color(0xFFE2D6FF),
+    textSecondary: const Color(0xFF00FFCC),
+  ),
+  AppThemeProfile(
+    name: "Nordic Frost",
+    scaffoldBg: const Color(0xFFF1F5F9),
+    backgroundGradient: const LinearGradient(
+      colors: [Color(0xFFF1F5F9), Color(0xFFE2E8F0)],
+      begin: Alignment.topCenter,
+      end: Alignment.bottomCenter,
+    ),
+    cardBg: const Color(0xFFFFFFFF),
+    primaryAccent: const Color(0xFF5E81AC), // Nordic Blue
+    secondaryAccent: const Color(0xFF88C0D0), // Frost Blue
+    bubbleGradient: const LinearGradient(
+      colors: [Color(0xFF5E81AC), Color(0xFF81A1C1)],
+      begin: Alignment.topLeft,
+      end: Alignment.bottomRight,
+    ),
+    textPrimary: const Color(0xFF2E3440),
+    textSecondary: const Color(0xFF4C566A),
+    isDark: false,
+  ),
+  AppThemeProfile(
+    name: "Amethyst Glow",
+    scaffoldBg: const Color(0xFF0F0518),
+    backgroundGradient: const LinearGradient(
+      colors: [Color(0xFF0F0518), Color(0xFF2A0845)],
+      begin: Alignment.topCenter,
+      end: Alignment.bottomCenter,
+    ),
+    cardBg: const Color(0xFF1C0D2E),
+    primaryAccent: const Color(0xFFB14BF4), // Bright Amethyst
+    secondaryAccent: const Color(0xFFF44B86), // Pinkish
+    bubbleGradient: const LinearGradient(
+      colors: [Color(0xFFB14BF4), Color(0xFFF44B86)],
+      begin: Alignment.topLeft,
+      end: Alignment.bottomRight,
+    ),
+    textPrimary: const Color(0xFFFDF4FF),
+    textSecondary: const Color(0xFFE8B4F8),
+  ),
+  AppThemeProfile(
+    name: "Obsidian Glass",
+    scaffoldBg: const Color(0xFF050505),
+    backgroundGradient: const LinearGradient(
+      colors: [Color(0xFF050505), Color(0xFF111111)],
+      begin: Alignment.topCenter,
+      end: Alignment.bottomCenter,
+    ),
+    cardBg: const Color(0xFF141414),
+    primaryAccent: const Color(0xFFE5E5E5), // Silver
+    secondaryAccent: const Color(0xFF737373), // Darker Silver
+    bubbleGradient: const LinearGradient(
+      colors: [Color(0xFF404040), Color(0xFF171717)],
+      begin: Alignment.topLeft,
+      end: Alignment.bottomRight,
+    ),
+    textPrimary: const Color(0xFFFAFAFA),
+    textSecondary: const Color(0xFFA3A3A3),
   ),
 ];
 
@@ -725,152 +803,6 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
   }
 
   // Open Parameter Config Dialog
-  void _showParametersSheet(BuildContext context, ChatService chatService, AppThemeProfile theme) {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.transparent,
-      isScrollControlled: true,
-      builder: (context) {
-        return StatefulBuilder(
-          builder: (BuildContext context, StateSetter setModalState) {
-            return ClipRRect(
-              borderRadius: const BorderRadius.only(topLeft: Radius.circular(24), topRight: Radius.circular(24)),
-              child: BackdropFilter(
-                filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
-                child: Container(
-                  padding: EdgeInsets.only(
-                    left: 24,
-                    right: 24,
-                    top: 24,
-                    bottom: MediaQuery.of(context).viewInsets.bottom + 32,
-                  ),
-                  color: theme.cardBg.withOpacity(0.9),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Row(
-                            children: [
-                              Icon(Icons.tune_rounded, color: theme.primaryAccent),
-                              const SizedBox(width: 10),
-                              Text(
-                                "Engine Hyperparameters",
-                                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: theme.textPrimary),
-                              ),
-                            ],
-                          ),
-                          IconButton(
-                            icon: const Icon(Icons.close_rounded),
-                            onPressed: () => Navigator.pop(context),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 6),
-                      Text(
-                        "Fine-tune the weights of the llama.cpp inference pipeline dynamically.",
-                        style: TextStyle(fontSize: 12, color: theme.textSecondary),
-                      ),
-                      const SizedBox(height: 24),
-
-                      // Temperature Slider
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text("Temperature", style: TextStyle(fontWeight: FontWeight.bold, color: theme.textPrimary)),
-                          Text(
-                            chatService.temperature.toStringAsFixed(2),
-                            style: TextStyle(fontWeight: FontWeight.bold, color: theme.secondaryAccent),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        chatService.temperature < 0.4
-                            ? "Strict, predictable, and highly factual answers."
-                            : chatService.temperature < 0.9
-                                ? "Balanced combination of creativity and logic."
-                                : "Unconstrained creative writing and rapid brainstorming.",
-                        style: TextStyle(fontSize: 10.5, color: theme.textSecondary),
-                      ),
-                      Slider(
-                        value: chatService.temperature,
-                        min: 0.1,
-                        max: 1.5,
-                        activeColor: theme.primaryAccent,
-                        inactiveColor: theme.primaryAccent.withOpacity(0.15),
-                        onChanged: (val) {
-                          setModalState(() {
-                            chatService.temperature = val;
-                          });
-                        },
-                      ),
-                      const SizedBox(height: 16),
-
-                      // Top P Slider
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text("Top P (Nucleus Sampling)", style: TextStyle(fontWeight: FontWeight.bold, color: theme.textPrimary)),
-                          Text(
-                            chatService.topP.toStringAsFixed(2),
-                            style: TextStyle(fontWeight: FontWeight.bold, color: theme.secondaryAccent),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 4),
-                      Slider(
-                        value: chatService.topP,
-                        min: 0.1,
-                        max: 1.0,
-                        activeColor: theme.secondaryAccent,
-                        inactiveColor: theme.secondaryAccent.withOpacity(0.15),
-                        onChanged: (val) {
-                          setModalState(() {
-                            chatService.topP = val;
-                          });
-                        },
-                      ),
-                      const SizedBox(height: 16),
-
-                      // Top K Slider
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text("Top K (Vocabulary Filter)", style: TextStyle(fontWeight: FontWeight.bold, color: theme.textPrimary)),
-                          Text(
-                            chatService.topK.toString(),
-                            style: TextStyle(fontWeight: FontWeight.bold, color: theme.secondaryAccent),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 4),
-                      Slider(
-                        value: chatService.topK.toDouble(),
-                        min: 10,
-                        max: 100,
-                        divisions: 9,
-                        activeColor: theme.primaryAccent,
-                        inactiveColor: theme.primaryAccent.withOpacity(0.15),
-                        onChanged: (val) {
-                          setModalState(() {
-                            chatService.topK = val.toInt();
-                          });
-                        },
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            );
-          },
-        );
-      },
-    );
-  }
-
   // Rename Thread dialog
   void _showRenameDialog(BuildContext context, ChatService chatService, String sessionId, String oldTitle, AppThemeProfile theme) {
     final textController = TextEditingController(text: oldTitle);
@@ -955,17 +887,18 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
           ],
         ),
         actions: [
-          // Tune settings button
+          // Settings Hub Button
           IconButton(
-            icon: Icon(Icons.tune_rounded, color: theme.primaryAccent),
-            tooltip: "Engine Parameters",
-            onPressed: () => _showParametersSheet(context, chatService, theme),
-          ),
-          // Theme Option Menu Button
-          IconButton(
-            icon: Icon(Icons.palette_outlined, color: theme.textSecondary),
-            tooltip: "Choose System Theme",
-            onPressed: () => _showThemePickerSheet(context, themeBridge),
+            icon: Icon(Icons.settings_suggest_rounded, color: theme.primaryAccent),
+            tooltip: "System Hub",
+            onPressed: () {
+              showModalBottomSheet(
+                context: context,
+                backgroundColor: Colors.transparent,
+                isScrollControlled: true,
+                builder: (context) => SettingsSheet(themeBridge: themeBridge),
+              );
+            },
           ),
           IconButton(
             icon: Icon(Icons.delete_sweep_outlined, color: theme.textSecondary),
@@ -1841,90 +1774,4 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
     );
   }
 
-  void _showThemePickerSheet(BuildContext context, ThemeProviderBridge themeBridge) {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.transparent,
-      builder: (context) {
-        return ClipRRect(
-          borderRadius: const BorderRadius.only(topLeft: Radius.circular(24), topRight: Radius.circular(24)),
-          child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-            child: Container(
-              padding: const EdgeInsets.all(24),
-              color: themeBridge.activeTheme.cardBg.withOpacity(0.9),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    "System Aesthetics",
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: themeBridge.activeTheme.textPrimary,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    "Personalize your offline chat interface with dynamic gradient skins.",
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: themeBridge.activeTheme.textSecondary,
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-                  ListView.builder(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    itemCount: appThemesList.length,
-                    itemBuilder: (context, index) {
-                      final t = appThemesList[index];
-                      final isSelected = themeBridge.activeThemeIndex == index;
-
-                      return Card(
-                        color: isSelected ? t.primaryAccent.withOpacity(0.1) : Colors.transparent,
-                        elevation: 0,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16),
-                          side: BorderSide(
-                            color: isSelected ? t.primaryAccent : Colors.transparent,
-                          ),
-                        ),
-                        child: ListTile(
-                          leading: Container(
-                            width: 24,
-                            height: 24,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              gradient: t.bubbleGradient,
-                            ),
-                          ),
-                          title: Text(
-                            t.name,
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                              color: themeBridge.activeTheme.textPrimary,
-                            ),
-                          ),
-                          trailing: isSelected
-                              ? Icon(Icons.check_circle, color: t.primaryAccent)
-                              : null,
-                          onTap: () {
-                            themeBridge.onThemeChanged(index);
-                            Navigator.pop(context);
-                          },
-                        ),
-                      );
-                    },
-                  ),
-                ],
-              ),
-            ),
-          ),
-        );
-      },
-    );
-  }
 }
