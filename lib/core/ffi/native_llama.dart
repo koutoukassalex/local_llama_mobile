@@ -117,8 +117,9 @@ class NativeLlama {
         .asFunction();
   }
 
-  /// Utility to build a default parameters struct
-  LlamaParams createDefaultParams() {
+  /// Utility to build a default parameters struct.
+  /// Caller MUST free the returned pointer using calloc.free when done!
+  Pointer<LlamaParams> createDefaultParams() {
     final pointer = calloc<LlamaParams>();
     final struct = pointer.ref;
     struct.nPredict = 512;
@@ -133,10 +134,6 @@ class NativeLlama {
     struct.useMmap = true; // High importance: reduces RAM consumption dramatically
     struct.useMlock = false;
     struct.flashAttn = true; // Reduces memory attention quadratic bounds
-    
-    // Copy out structure and free original pointer allocation
-    final copy = pointer.ref;
-    calloc.free(pointer);
-    return copy;
+    return pointer;
   }
 }

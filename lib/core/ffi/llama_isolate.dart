@@ -108,7 +108,7 @@ class LlamaIsolateManager {
       if (message is SendPort) {
         _toIsolateSendPort = message;
         _isInitialized = true;
-        _statusController.add(LlamaStatusEvent(status: "Native isolate ready", isReady: true));
+        _statusController.add(LlamaStatusEvent(status: "Native isolate ready", isReady: false));
       } else if (message is LlamaStreamEvent) {
         _eventController.add(message);
       } else if (message is LlamaStatusEvent) {
@@ -181,7 +181,8 @@ class LlamaIsolateManager {
             modelPtr = nullptr;
           }
 
-          final params = nativeLlama.createDefaultParams();
+          final paramsPtr = nativeLlama.createDefaultParams();
+          final params = paramsPtr.ref;
           params.nCtx = message.nCtx;
           params.nGpuLayers = message.nGpuLayers;
           params.nThreads = message.nThreads;
@@ -191,11 +192,13 @@ class LlamaIsolateManager {
           calloc.free(modelPathPtr);
 
           if (modelPtr == nullptr) {
+            calloc.free(paramsPtr);
             mainSendPort.send(LlamaStatusEvent(status: "Error: Model loading failed. RAM exceeded or invalid GGUF format.", isReady: false));
             return;
           }
 
           ctxPtr = nativeLlama.contextCreate(modelPtr, params);
+          calloc.free(paramsPtr);
           if (ctxPtr == nullptr) {
             nativeLlama.modelFree(modelPtr);
             modelPtr = nullptr;
@@ -220,7 +223,8 @@ class LlamaIsolateManager {
         }
 
         try {
-          final params = nativeLlama.createDefaultParams();
+          final paramsPtr = nativeLlama.createDefaultParams();
+          final params = paramsPtr.ref;
           params.temp = message.temperature;
           params.topP = message.topP;
           params.topK = message.topK;
@@ -240,6 +244,7 @@ class LlamaIsolateManager {
           );
 
           calloc.free(promptPtr);
+          calloc.free(paramsPtr);
         } catch (e) {
           mainSendPort.send(LlamaStreamEvent(
             token: "",

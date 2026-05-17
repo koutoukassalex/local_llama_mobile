@@ -71,17 +71,17 @@ class ChatService extends ChangeNotifier {
   }
 
   Future<void> _init() async {
-    await _isolateManager.start();
-    await _modelManager.init();
-
-    // Create an initial clean session
-    createNewSession(title: "First Thread");
-
     _statusSubscription = _isolateManager.statusStream.listen((event) {
       _status = event.status;
       _isModelLoaded = event.isReady;
       notifyListeners();
     });
+
+    await _isolateManager.start();
+    await _modelManager.init();
+
+    // Create an initial clean session
+    createNewSession(title: "First Thread");
   }
 
   /// Create a fresh new chat conversation session
