@@ -50,4 +50,16 @@ post_install do |installer|
       config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '13.0'
     end
   end
+
+  # Modify the main Runner project to ensure FFI symbols are exported to the dynamic symbol table
+  installer.aggregate_targets.each do |target|
+    target.user_project.targets.each do |user_target|
+      user_target.build_configurations.each do |config|
+        config.build_settings['STRIP_STYLE'] = 'non-global'
+        # Prevent stripping of linked static libraries
+        config.build_settings['STRIP_INSTALLED_PRODUCT'] = 'NO'
+      end
+    end
+    target.user_project.save
+  end
 end
