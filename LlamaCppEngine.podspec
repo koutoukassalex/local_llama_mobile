@@ -10,8 +10,8 @@ Pod::Spec.new do |s|
   s.platform         = :ios, '13.0'
   s.static_framework = true
 
-  # Relative paths from this podspec location (native/ios/) to the C++ sources
-  cpp_root = '../../android/app/src/main/cpp'
+  # Relative paths from this podspec location (root) to the C++ sources
+  cpp_root = 'android/app/src/main/cpp'
   llama_root = "#{cpp_root}/llama.cpp"
 
   # ---- Source files ----

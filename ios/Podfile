@@ -33,8 +33,8 @@ target 'Runner' do
 
   flutter_install_all_ios_pods File.dirname(File.realpath(__FILE__))
 
-  # Local llama.cpp native engine pod
-  pod 'LlamaCppEngine', :path => '../native/ios'
+  # Local llama.cpp native engine pod located at project root
+  pod 'LlamaCppEngine', :path => '../'
 end
 
 target 'RunnerTests' do
