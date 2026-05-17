@@ -187,13 +187,15 @@ class LlamaIsolateManager {
     LlamaContextPtr ctxPtr = nullptr;
     NativeLlama? nativeLlama;
 
+    String? initError;
     try {
       // Instantiate native binding within the isolate scope
       nativeLlama = NativeLlama.instance;
       nativeLlama.backendInit();
     } catch (e) {
+      initError = e.toString();
       mainSendPort.send(LlamaStatusEvent(
-        status: "Fatal Error: Native engine failed to initialize: $e",
+        status: "Fatal Error: Native engine failed to initialize: $initError",
         isReady: false,
       ));
     }
@@ -204,14 +206,14 @@ class LlamaIsolateManager {
       if (nativeLlama == null) {
         if (message is LoadModelCommand) {
           mainSendPort.send(LlamaStatusEvent(
-            status: "Error: Cannot load model. Native engine is uninitialized.",
+            status: "Error: Cannot load model. Native engine uninitialized: $initError",
             isReady: false,
           ));
         } else if (message is GenerateCommand) {
           mainSendPort.send(LlamaStreamEvent(
             token: "",
             isFinished: true,
-            error: "Error: Generation failed. Native engine is uninitialized.",
+            error: "Error: Generation failed. Native engine uninitialized: $initError",
           ));
         }
         return;
