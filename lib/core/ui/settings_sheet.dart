@@ -15,11 +15,20 @@ class SettingsSheet extends StatefulWidget {
 
 class _SettingsSheetState extends State<SettingsSheet> with SingleTickerProviderStateMixin {
   late TabController _tabController;
+  late int _localThemeIndex;
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
+    _localThemeIndex = widget.themeBridge.activeThemeIndex;
+  }
+
+  void _updateTheme(int newIndex) {
+    setState(() {
+      _localThemeIndex = newIndex;
+    });
+    widget.themeBridge.onThemeChanged(newIndex);
   }
 
   @override
@@ -30,7 +39,7 @@ class _SettingsSheetState extends State<SettingsSheet> with SingleTickerProvider
 
   @override
   Widget build(BuildContext context) {
-    final theme = widget.themeBridge.activeTheme;
+    final theme = appThemesList[_localThemeIndex];
     final chatService = Provider.of<ChatService>(context);
 
     return ClipRRect(
@@ -110,11 +119,11 @@ class _SettingsSheetState extends State<SettingsSheet> with SingleTickerProvider
       itemCount: appThemesList.length,
       itemBuilder: (context, index) {
         final t = appThemesList[index];
-        final isSelected = widget.themeBridge.activeThemeIndex == index;
+        final isSelected = _localThemeIndex == index;
 
         return GestureDetector(
           onTap: () {
-            widget.themeBridge.onThemeChanged(index);
+            _updateTheme(index);
           },
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 300),

@@ -8,7 +8,7 @@ Pod::Spec.new do |s|
   s.author           = { 'koutoukassalex' => 'koutoukassalex@github.com' }
   s.source           = { :path => '.' }
   s.platform         = :ios, '13.0'
-  s.static_framework = true
+  s.static_framework = false
 
   # Relative paths from this podspec location (native/ios/) to the C++ sources
   cpp_root = '../../android/app/src/main/cpp'

@@ -74,9 +74,13 @@ class NativeLlama {
         rethrow;
       }
     } else if (Platform.isIOS || Platform.isMacOS) {
-      // In iOS and MacOS, libraries are linked statically or embedded inside the Frameworks bundle.
-      // DynamicLibrary.process() opens the main executable process image which contains the symbols.
-      return DynamicLibrary.process();
+      // In iOS and MacOS, try to load the dynamic framework first.
+      try {
+        return DynamicLibrary.open('LlamaCppEngine.framework/LlamaCppEngine');
+      } catch (e) {
+        // Fallback to the main executable process if statically linked
+        return DynamicLibrary.process();
+      }
     }
     throw UnsupportedError('Unsupported platform: ${Platform.operatingSystem}');
   }
