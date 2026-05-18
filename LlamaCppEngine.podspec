@@ -24,6 +24,10 @@ Pod::Spec.new do |s|
     "#{llama_root}/src/*.cpp",
     "#{llama_root}/src/*.h",
 
+    # 2b. llama.cpp model implementations (vtables for all model architectures)
+    "#{llama_root}/src/models/*.cpp",
+    "#{llama_root}/src/models/*.h",
+
     # 3. ggml core sources
     "#{llama_root}/ggml/src/ggml.c",
     "#{llama_root}/ggml/src/ggml.cpp",
@@ -38,6 +42,10 @@ Pod::Spec.new do |s|
     "#{llama_root}/ggml/src/ggml-impl.h",
     "#{llama_root}/ggml/src/ggml-backend-impl.h",
     "#{llama_root}/ggml/src/ggml-common.h",
+
+    # 3b. ggml dynamic loading support (dl_load_library, dl_get_sym, dl_error)
+    "#{llama_root}/ggml/src/ggml-backend-dl.cpp",
+    "#{llama_root}/ggml/src/ggml-backend-dl.h",
 
     # 4. ggml CPU backend
     "#{llama_root}/ggml/src/ggml-cpu/ggml-cpu.c",
