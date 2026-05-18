@@ -11,12 +11,18 @@ Pod::Spec.new do |s|
   s.static_framework = true
 
   # Relative paths from this podspec location (root) to the C++ sources
+  s.prepare_command = <<-CMD
+    # Workaround for Xcode treating .cpp folders as single source files
+    rm -f ios_llama_core
+    ln -s android/app/src/main/cpp/llama.cpp ios_llama_core
+  CMD
+
   cpp_root = 'android/app/src/main/cpp'
-  llama_root = "#{cpp_root}/llama.cpp"
+  llama_root = 'ios_llama_core'
 
   # ---- Source files ----
   # 1. Our FFI wrapper
-  s.source_files =
+  s.source_files = [
     "#{cpp_root}/llama_wrapper.cpp",
     "#{cpp_root}/llama_wrapper.h",
 
@@ -83,6 +89,7 @@ Pod::Spec.new do |s|
     "#{llama_root}/ggml/src/ggml-metal/ggml-metal-impl.h",
     "#{llama_root}/ggml/src/ggml-metal/ggml-metal-ops.cpp",
     "#{llama_root}/ggml/src/ggml-metal/ggml-metal-ops.h"
+  ]
 
   # ---- Metal shader file ----
   s.resources = "#{llama_root}/ggml/src/ggml-metal/ggml-metal.metal"
