@@ -91,7 +91,7 @@ Pod::Spec.new do |s|
       "\"$(PODS_TARGET_SRCROOT)/#{llama_root}/ggml/src/ggml-metal\"",
       "\"$(PODS_TARGET_SRCROOT)/#{llama_root}/ggml/src/ggml-common.h\"",
     ].join(' '),
-    'GCC_PREPROCESSOR_DEFINITIONS' => 'GGML_USE_METAL=1 GGML_METAL_EMBED_LIBRARY=0 NDEBUG=1 ACCELERATE_NEW_LAPACK=1 ACCELERATE_LAPACK_ILP64=1',
+    'GCC_PREPROCESSOR_DEFINITIONS' => 'GGML_USE_METAL=1 GGML_METAL_EMBED_LIBRARY=0 NDEBUG=1 ACCELERATE_NEW_LAPACK=1 ACCELERATE_LAPACK_ILP64=1 GGML_VERSION=\"0.12.0\" GGML_COMMIT=\"unknown\"',
     'CLANG_CXX_LANGUAGE_STANDARD' => 'c++17',
     'OTHER_CFLAGS' => '-fno-objc-arc -w',
     'OTHER_CPLUSPLUSFLAGS' => '-fno-objc-arc -w -std=c++17',
