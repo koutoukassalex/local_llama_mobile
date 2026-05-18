@@ -13,8 +13,9 @@ Pod::Spec.new do |s|
   # Relative paths from this podspec location (root) to the C++ sources
   s.prepare_command = <<-CMD
     # Workaround for Xcode treating .cpp folders as single source files
-    rm -f ios_llama_core
-    ln -s android/app/src/main/cpp/llama.cpp ios_llama_core
+    # CocoaPods resolves symlinks, so we must hard-copy to a folder without .cpp
+    rm -rf ios_llama_core
+    cp -R android/app/src/main/cpp/llama.cpp ios_llama_core
   CMD
 
   cpp_root = 'android/app/src/main/cpp'
