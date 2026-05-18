@@ -47,7 +47,7 @@ class NativeLlama {
   late final void Function() backendInit;
   late final LlamaModelPtr Function(Pointer<Utf8> modelPath, LlamaParams params) modelLoad;
   late final LlamaContextPtr Function(LlamaModelPtr model, LlamaParams params) contextCreate;
-  late final int Function(
+  late final bool Function(
     LlamaModelPtr model,
     LlamaContextPtr ctx,
     Pointer<Utf8> prompt,
@@ -95,7 +95,7 @@ class NativeLlama {
         .asFunction();
 
     inferenceStream = _lib
-        .lookup<NativeFunction<Int32 Function(
+        .lookup<NativeFunction<Bool Function(
           LlamaModelPtr,
           LlamaContextPtr,
           Pointer<Utf8>,
