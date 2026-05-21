@@ -15,7 +15,7 @@ Pod::Spec.new do |s|
     # Workaround for Xcode treating .cpp folders as single source files
     # CocoaPods resolves symlinks, so we must hard-copy to a folder without .cpp
     rm -rf ios_llama_core
-    cp -R android/app/src/main/cpp/llama.cpp ios_llama_core
+    cp -R android/app/src/main/cpp/llama_cpp ios_llama_core
   CMD
 
   cpp_root = 'android/app/src/main/cpp'

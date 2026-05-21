@@ -12,7 +12,7 @@ set(LLAMA_BUILD_SERVER OFF CACHE BOOL "Disable local web server daemon compiling
 set(GGML_VULKAN OFF CACHE BOOL "Enable Vulkan GPU acceleration" FORCE)
 
 # Define llama.cpp path
-set(LLAMA_DIR "${CMAKE_CURRENT_SOURCE_DIR}/llama.cpp")
+set(LLAMA_DIR "${CMAKE_CURRENT_SOURCE_DIR}/llama_cpp")
 
 # Import the official CMake build configs of the submodule
 add_subdirectory(${LLAMA_DIR})
