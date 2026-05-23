@@ -16,7 +16,18 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
         with:
-          submodules: recursive
+          submodules: false  # We handle submodules manually below
+
+      - name: Initialize and update submodules
+        run: |
+          git submodule sync --recursive
+          git submodule update --init --recursive --depth=1
+          echo "=== Verifying llama_cpp submodule ==="
+          ls -la android/app/src/main/cpp/llama_cpp/
+          ls -la android/app/src/main/cpp/llama_cpp/src/
+          ls -la android/app/src/main/cpp/llama_cpp/ggml/src/
+          echo "=== Submodule file count ==="
+          find android/app/src/main/cpp/llama_cpp -name "*.cpp" | wc -l
 
       - name: Set up Flutter SDK
         uses: subosito/flutter-action@v2
