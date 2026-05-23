@@ -14,10 +14,11 @@ Pod::Spec.new do |s|
   llama_root = "#{cpp_root}/llama_cpp"
 
   # ---- Source files ----
-  # 1. Our FFI wrapper
+  # 1. Our FFI wrapper and core wrapper
   s.source_files = [
     "#{cpp_root}/llama_wrapper.cpp",
     "#{cpp_root}/llama_wrapper.h",
+    "#{cpp_root}/llama_core.cpp",
 
     # 2. llama.cpp core library sources
     "#{llama_root}/src/*.cpp",
@@ -52,6 +53,11 @@ Pod::Spec.new do |s|
 
     # 5. ggml Metal GPU backend (iOS GPU acceleration!)
     "#{llama_root}/ggml/src/ggml-metal/*.{c,cpp,m,h}"
+  ]
+
+  # ---- Exclude files to prevent object file collisions ----
+  s.exclude_files = [
+    "#{llama_root}/src/llama.cpp" # Wrapped by llama_core.cpp to avoid collision with models/llama.cpp
   ]
 
   # ---- Metal shader file ----
