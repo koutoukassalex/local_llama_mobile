@@ -5,10 +5,9 @@ on:
     branches: [ main, master ]
   pull_request:
     branches: [ main, master ]
-  workflow_dispatch: # Allows manual trigger directly from GitHub UI!
+  workflow_dispatch:
 
 jobs:
-  # 🍏 Job 1: Compile iOS IPA (runs on cloud macOS runner)
   build-ios:
     name: Build iOS Native IPA
     runs-on: macos-latest
@@ -16,18 +15,15 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
         with:
-          submodules: false  # We handle submodules manually below
+          submodules: false
 
-      - name: Initialize and update submodules
+      - name: Initialize submodules explicitly
         run: |
           git submodule sync --recursive
           git submodule update --init --recursive --depth=1
           echo "=== Verifying llama_cpp submodule ==="
-          ls -la android/app/src/main/cpp/llama_cpp/
-          ls -la android/app/src/main/cpp/llama_cpp/src/
-          ls -la android/app/src/main/cpp/llama_cpp/ggml/src/
-          echo "=== Submodule file count ==="
-          find android/app/src/main/cpp/llama_cpp -name "*.cpp" | wc -l
+          ls android/app/src/main/cpp/llama_cpp/CMakeLists.txt || { echo "FATAL: submodule empty"; exit 1; }
+          echo "CPP file count: $(find android/app/src/main/cpp/llama_cpp -name '*.cpp' | wc -l)"
 
       - name: Set up Flutter SDK
         uses: subosito/flutter-action@v2
@@ -35,11 +31,15 @@ jobs:
           channel: 'stable'
           cache: true
 
-      - name: Install Dependencies
+      - name: Install Flutter dependencies
+        run: flutter pub get
+
+      - name: Clean Pods cache and install
         run: |
-          flutter pub get
           cd ios
+          rm -rf Pods Podfile.lock
           pod install --repo-update
+          echo "=== Pod install complete ==="
 
       - name: Compile Unsigned iOS IPA
         run: |
