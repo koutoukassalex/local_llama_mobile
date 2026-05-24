@@ -105,7 +105,7 @@ Pod::Spec.new do |s|
 
   # Force the application (Runner) to link our FFI symbols, preventing dead-code stripping
   s.user_target_xcconfig = {
-    'OTHER_LDFLAGS' => '-Wl,-u,_llama_backend_init_mobile -Wl,-u,_llama_model_load_from_file_mobile -Wl,-u,_llama_context_create_mobile -Wl,-u,_llama_inference_stream_mobile -Wl,-u,_llama_context_free_mobile -Wl,-u,_llama_model_free_mobile -Wl,-u,_llama_kv_cache_clear_mobile'
+    'OTHER_LDFLAGS' => '-Wl,-u,_llama_backend_init_mobile -Wl,-u,_llama_get_last_error_mobile -Wl,-u,_llama_model_load_from_file_mobile -Wl,-u,_llama_context_create_mobile -Wl,-u,_llama_inference_stream_mobile -Wl,-u,_llama_context_free_mobile -Wl,-u,_llama_model_free_mobile -Wl,-u,_llama_kv_cache_clear_mobile'
   }
 
   # ---- System frameworks ----
