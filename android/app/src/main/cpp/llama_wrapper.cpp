@@ -7,6 +7,15 @@
 #include <mutex>
 #include <thread>
 #include <algorithm>
+#include <sys/stat.h>   // for stat() to verify file existence
+
+// iOS App Sandbox detection: mmap is prohibited on user-imported files in sandboxed iOS apps.
+// When running on iOS (TARGET_OS_IOS defined by Apple Clang toolchain) force mmap=false, mlock=false.
+#if defined(TARGET_OS_IOS) && TARGET_OS_IOS
+  #define LLAMA_FORCE_NO_MMAP 1
+#else
+  #define LLAMA_FORCE_NO_MMAP 0
+#endif
 
 // Thread-safety mutex
 static std::mutex g_llama_mutex;
@@ -73,14 +82,54 @@ void llama_backend_init_mobile(void) {
 
 llama_model_ptr llama_model_load_from_file_mobile(const char* model_path, llama_params_t params) {
     std::lock_guard<std::mutex> lock(g_llama_mutex);
-    if (!model_path) return nullptr;
+    if (!model_path) {
+        fprintf(stderr, "[llama_mobile] ERROR: model_path is null\n");
+        return nullptr;
+    }
+
+    // Diagnostic: verify the file actually exists before attempting load
+    struct stat st;
+    if (stat(model_path, &st) != 0 || !S_ISREG(st.st_mode)) {
+        fprintf(stderr, "[llama_mobile] ERROR: model file does not exist or is not a regular file: %s\n", model_path);
+        return nullptr;
+    }
+    fprintf(stderr, "[llama_mobile] Loading model: %s (%.1f MB)\n", model_path, st.st_size / (1024.0 * 1024.0));
 
     llama_model_params mparams = llama_model_default_params();
     mparams.n_gpu_layers = params.n_gpu_layers;
-    mparams.use_mmap = params.use_mmap;
-    mparams.use_mlock = params.use_mlock;
 
+    // iOS App Sandbox: never use mmap or mlock on sandboxed iOS — they cause SIGBUS or silent nullptr.
+    // For Android and macOS, respect user preference.
+#if LLAMA_FORCE_NO_MMAP
+    mparams.use_mmap  = false;
+    mparams.use_mlock = false;
+    fprintf(stderr, "[llama_mobile] iOS sandbox mode: mmap=false, mlock=false, n_gpu_layers=%d\n", mparams.n_gpu_layers);
+#else
+    mparams.use_mmap  = params.use_mmap;
+    mparams.use_mlock = params.use_mlock;
+    fprintf(stderr, "[llama_mobile] Loading with mmap=%d, mlock=%d, n_gpu_layers=%d\n",
+            (int)mparams.use_mmap, (int)mparams.use_mlock, mparams.n_gpu_layers);
+#endif
+
+    // First attempt: with the requested GPU layers (Metal acceleration)
     llama_model* model = llama_model_load_from_file(model_path, mparams);
+
+    // Fallback: if Metal OOM or layer-load failure, retry with CPU only
+    if (model == nullptr && mparams.n_gpu_layers > 0) {
+        fprintf(stderr, "[llama_mobile] GPU load failed (n_gpu_layers=%d). Retrying with CPU only (n_gpu_layers=0)...\n", mparams.n_gpu_layers);
+        mparams.n_gpu_layers = 0;
+        model = llama_model_load_from_file(model_path, mparams);
+        if (model != nullptr) {
+            fprintf(stderr, "[llama_mobile] CPU fallback load succeeded.\n");
+        }
+    }
+
+    if (model == nullptr) {
+        fprintf(stderr, "[llama_mobile] ERROR: llama_model_load_from_file returned null for path: %s\n", model_path);
+    } else {
+        fprintf(stderr, "[llama_mobile] Model loaded successfully.\n");
+    }
+
     return reinterpret_cast<llama_model_ptr>(model);
 }
 

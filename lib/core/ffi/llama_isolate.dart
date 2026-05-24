@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:ffi';
+import 'dart:io';
 import 'dart:isolate';
 import 'package:ffi/ffi.dart';
 import 'native_llama.dart';
@@ -30,8 +31,10 @@ class LoadModelCommand extends LlamaCommand {
 
   LoadModelCommand({
     required this.modelPath,
-    this.nCtx = 2048,
-    this.nGpuLayers = 99, // -1 or 99 maps to all layers to GPU
+    // iOS: 1024 ctx uses ~50% less KV-cache memory than 2048; safe default for 4-6GB devices.
+    // Android: 2048 is fine since Android doesn't hard-cap app memory the same way.
+    this.nCtx = Platform.isIOS ? 1024 : 2048,
+    this.nGpuLayers = 99, // -1 or 99 maps to all layers to GPU; C++ retries with 0 on OOM
     this.nThreads = 4,
   });
 }
@@ -245,7 +248,13 @@ class LlamaIsolateManager {
 
           if (modelPtr == nullptr) {
             calloc.free(paramsPtr);
-            mainSendPort.send(LlamaStatusEvent(status: "Error: Model loading failed. RAM exceeded or invalid GGUF format.", isReady: false));
+            // Provide actionable diagnosis: file path is printed in C++ logs via stderr
+            mainSendPort.send(LlamaStatusEvent(
+              status: "Error: Model load failed for '${message.modelPath.split('/').last}'. "
+                      "Check: (1) enough free RAM, (2) valid GGUF file, (3) model path accessible. "
+                      "GPU fallback to CPU already attempted automatically.",
+              isReady: false,
+            ));
             return;
           }
 

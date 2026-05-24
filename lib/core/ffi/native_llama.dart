@@ -131,8 +131,10 @@ class NativeLlama {
     struct.temp = 0.7;
     struct.topP = 0.9;
     struct.topK = 40;
-    struct.useMmap = true; // High importance: reduces RAM consumption dramatically
-    struct.useMlock = false;
+    // iOS App Sandbox: memory-mapping is blocked for user-imported files.
+    // Use mmap only on Android/macOS where it safely reduces RAM consumption.
+    struct.useMmap = !Platform.isIOS;
+    struct.useMlock = false; // mlock is generally unsupported in mobile sandboxes
     struct.flashAttn = true; // Reduces memory attention quadratic bounds
     return pointer;
   }
