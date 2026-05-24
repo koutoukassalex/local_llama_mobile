@@ -25,6 +25,10 @@ Pod::Spec.new do |s|
     else
       echo "[LlamaCppEngine] xcrun metal not found, skipping metallib pre-compilation"
     fi
+    # Generate wrapper files for ARM architecture to prevent CocoaPods from overwriting
+    # the generic quants.o and repack.o files (flat namespace object collision)
+    echo '#include "quants.c"' > "android/app/src/main/cpp/llama_cpp/ggml/src/ggml-cpu/arch/arm/quants_arm_wrapper.c"
+    echo '#include "repack.cpp"' > "android/app/src/main/cpp/llama_cpp/ggml/src/ggml-cpu/arch/arm/repack_arm_wrapper.cpp"
   CMD
 
   cpp_root = 'android/app/src/main/cpp'
@@ -67,7 +71,8 @@ Pod::Spec.new do |s|
     # 4. ggml CPU backend
     "#{llama_root}/ggml/src/ggml-cpu/*.{c,cpp,h}",
     "#{llama_root}/ggml/src/ggml-cpu/llamafile/*.{c,cpp,h}",
-    "#{llama_root}/ggml/src/ggml-cpu/arch/*/*.{c,cpp,h}",
+    "#{llama_root}/ggml/src/ggml-cpu/arch/arm/*_wrapper.{c,cpp}",
+    "#{llama_root}/ggml/src/ggml-cpu/arch/arm/cpu-feats.cpp",
 
     # 5. ggml Metal GPU backend (iOS GPU acceleration!)
     "#{llama_root}/ggml/src/ggml-metal/*.{c,cpp,m,h}"
