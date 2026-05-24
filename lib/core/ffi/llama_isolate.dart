@@ -246,11 +246,15 @@ class LlamaIsolateManager {
 
           if (modelPtr == nullptr) {
             calloc.free(paramsPtr);
-            // Provide actionable diagnosis: file path is printed in C++ logs via stderr
+            
+            // Check file size to diagnose truncated downloads
+            final file = File(message.modelPath);
+            final sizeStr = file.existsSync() ? "${(file.lengthSync() / (1024 * 1024)).toStringAsFixed(1)} MB" : "File not found";
+
             mainSendPort.send(LlamaStatusEvent(
-              status: "Error: Model load failed for '${message.modelPath.split('/').last}'. "
-                      "Check: (1) enough free RAM, (2) valid GGUF file, (3) model path accessible. "
-                      "GPU fallback to CPU already attempted automatically.",
+              status: "Error: Model load failed for '${message.modelPath.split('/').last}' ($sizeStr). "
+                      "If the size is smaller than expected, the download was likely interrupted. "
+                      "Delete the model and try downloading again, keeping the app open.",
               isReady: false,
             ));
             return;
