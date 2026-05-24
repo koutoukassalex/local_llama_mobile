@@ -31,12 +31,10 @@ class LoadModelCommand extends LlamaCommand {
 
   LoadModelCommand({
     required this.modelPath,
-    // iOS: 1024 ctx uses ~50% less KV-cache memory than 2048; safe default for 4-6GB devices.
-    // Android: 2048 is fine since Android doesn't hard-cap app memory the same way.
-    this.nCtx = Platform.isIOS ? 1024 : 2048,
+    int? nCtx,
     this.nGpuLayers = 99, // -1 or 99 maps to all layers to GPU; C++ retries with 0 on OOM
     this.nThreads = 4,
-  });
+  }) : nCtx = nCtx ?? (Platform.isIOS ? 1024 : 2048);
 }
 
 class GenerateCommand extends LlamaCommand {
