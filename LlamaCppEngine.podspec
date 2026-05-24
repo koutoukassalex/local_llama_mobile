@@ -67,6 +67,7 @@ Pod::Spec.new do |s|
     # 4. ggml CPU backend
     "#{llama_root}/ggml/src/ggml-cpu/*.{c,cpp,h}",
     "#{llama_root}/ggml/src/ggml-cpu/llamafile/*.{c,cpp,h}",
+    "#{llama_root}/ggml/src/ggml-cpu/arch/*/*.{c,cpp,h}",
 
     # 5. ggml Metal GPU backend (iOS GPU acceleration!)
     "#{llama_root}/ggml/src/ggml-metal/*.{c,cpp,m,h}"
