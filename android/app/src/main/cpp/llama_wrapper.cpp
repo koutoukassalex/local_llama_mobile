@@ -172,6 +172,7 @@ llama_model_ptr llama_model_load_from_file_mobile(const char* model_path, llama_
 
 llama_context_ptr llama_context_create_mobile(llama_model_ptr model_ptr, llama_params_t params) {
     std::lock_guard<std::mutex> lock(g_llama_mutex);
+    g_last_error_msg.clear();
     if (!model_ptr) return nullptr;
 
     llama_model* model = reinterpret_cast<llama_model*>(model_ptr);

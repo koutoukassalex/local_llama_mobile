@@ -267,9 +267,14 @@ class LlamaIsolateManager {
           ctxPtr = nativeLlama.contextCreate(modelPtr, params);
           calloc.free(paramsPtr);
           if (ctxPtr == nullptr) {
+            final errorPtr = nativeLlama.getLastError();
+            final cppError = errorPtr != nullptr ? errorPtr.toDartString() : "Unknown error";
             nativeLlama.modelFree(modelPtr);
             modelPtr = nullptr;
-            mainSendPort.send(LlamaStatusEvent(status: "Error: Context allocation failed.", isReady: false));
+            mainSendPort.send(LlamaStatusEvent(
+              status: "Error: Context allocation failed.\nEngine details: $cppError", 
+              isReady: false
+            ));
             return;
           }
 
