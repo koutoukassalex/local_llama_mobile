@@ -247,14 +247,18 @@ class LlamaIsolateManager {
           if (modelPtr == nullptr) {
             calloc.free(paramsPtr);
             
+            // Fetch internal error message from C++
+            final errorPtr = nativeLlama.getLastError();
+            final cppError = errorPtr != nullptr ? errorPtr.toDartString() : "Unknown error";
+            
             // Check file size to diagnose truncated downloads
             final file = File(message.modelPath);
             final sizeStr = file.existsSync() ? "${(file.lengthSync() / (1024 * 1024)).toStringAsFixed(1)} MB" : "File not found";
 
             mainSendPort.send(LlamaStatusEvent(
-              status: "Error: Model load failed for '${message.modelPath.split('/').last}' ($sizeStr). "
-                      "If the size is smaller than expected, the download was likely interrupted. "
-                      "Delete the model and try downloading again, keeping the app open.",
+              status: "Error: Model load failed for '${message.modelPath.split('/').last}' ($sizeStr).\n"
+                      "Engine details: $cppError\n"
+                      "If the size is smaller than expected, the download was likely interrupted.",
               isReady: false,
             ));
             return;

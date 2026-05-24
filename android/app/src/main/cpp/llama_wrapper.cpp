@@ -20,6 +20,19 @@
 // Thread-safety mutex
 static std::mutex g_llama_mutex;
 
+// Global error string accessible by Dart
+static std::string g_last_error_msg = "";
+
+// Custom logger to capture internal llama.cpp errors
+static void llama_mobile_log_callback(ggml_log_level level, const char * text, void * user_data) {
+    if (level >= GGML_LOG_LEVEL_ERROR || level == GGML_LOG_LEVEL_WARN) {
+        g_last_error_msg += text;
+    }
+    // Still output to stderr for Xcode console
+    fputs(text, stderr);
+    fflush(stderr);
+}
+
 // Custom token to UTF-8 buffer helper to resolve half-character streaming bugs (e.g. emojis)
 struct utf8_decoder {
     std::string buffer;
@@ -74,25 +87,45 @@ void llama_backend_init_mobile(void) {
     std::lock_guard<std::mutex> lock(g_llama_mutex);
     static bool initialized = false;
     if (!initialized) {
+        // Intercept logs to capture internal engine errors
+        llama_log_set(llama_mobile_log_callback, nullptr);
+
         // Initialize llama.cpp backend, supporting NUMA and platform specifics
         llama_backend_init();
         initialized = true;
     }
 }
 
+const char* llama_get_last_error_mobile(void) {
+    std::lock_guard<std::mutex> lock(g_llama_mutex);
+    return g_last_error_msg.c_str();
+}
+
 llama_model_ptr llama_model_load_from_file_mobile(const char* model_path, llama_params_t params) {
     std::lock_guard<std::mutex> lock(g_llama_mutex);
+    g_last_error_msg.clear();
+
     if (!model_path) {
-        fprintf(stderr, "[llama_mobile] ERROR: model_path is null\n");
+        g_last_error_msg = "model_path provided by Dart is null.";
+        fprintf(stderr, "[llama_mobile] ERROR: %s\n", g_last_error_msg.c_str());
         return nullptr;
     }
 
     // Diagnostic: verify the file actually exists before attempting load
     struct stat st;
     if (stat(model_path, &st) != 0 || !S_ISREG(st.st_mode)) {
-        fprintf(stderr, "[llama_mobile] ERROR: model file does not exist or is not a regular file: %s\n", model_path);
+        g_last_error_msg = std::string("File does not exist or is not a regular file: ") + model_path;
+        fprintf(stderr, "[llama_mobile] ERROR: %s\n", g_last_error_msg.c_str());
         return nullptr;
     }
+    
+    // Check if file is suspiciously small (e.g. truncated download)
+    if (st.st_size < 1024 * 1024) { // Less than 1MB
+        g_last_error_msg = "File is unusually small (" + std::to_string(st.st_size) + " bytes). The download may have been interrupted.";
+        fprintf(stderr, "[llama_mobile] ERROR: %s\n", g_last_error_msg.c_str());
+        return nullptr;
+    }
+
     fprintf(stderr, "[llama_mobile] Loading model: %s (%.1f MB)\n", model_path, st.st_size / (1024.0 * 1024.0));
 
     llama_model_params mparams = llama_model_default_params();
@@ -125,8 +158,12 @@ llama_model_ptr llama_model_load_from_file_mobile(const char* model_path, llama_
     }
 
     if (model == nullptr) {
-        fprintf(stderr, "[llama_mobile] ERROR: llama_model_load_from_file returned null for path: %s\n", model_path);
+        if (g_last_error_msg.empty()) {
+            g_last_error_msg = "llama_model_load_from_file returned NULL without specifying an error. Check if the file is a valid GGUF.";
+        }
+        fprintf(stderr, "[llama_mobile] ERROR: %s\n", g_last_error_msg.c_str());
     } else {
+        g_last_error_msg.clear();
         fprintf(stderr, "[llama_mobile] Model loaded successfully.\n");
     }
 

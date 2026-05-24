@@ -57,6 +57,7 @@ class NativeLlama {
   late final void Function(LlamaContextPtr ctx) contextFree;
   late final void Function(LlamaModelPtr model) modelFree;
   late final void Function(LlamaContextPtr ctx) kvCacheClear;
+  late final Pointer<Utf8> Function() getLastError;
 
   static final NativeLlama instance = NativeLlama._internal();
 
@@ -114,6 +115,10 @@ class NativeLlama {
 
     kvCacheClear = _lib
         .lookup<NativeFunction<Void Function(LlamaContextPtr)>>('llama_kv_cache_clear_mobile')
+        .asFunction();
+
+    getLastError = _lib
+        .lookup<NativeFunction<Pointer<Utf8> Function()>>('llama_get_last_error_mobile')
         .asFunction();
   }
 
