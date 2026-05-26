@@ -10,7 +10,6 @@ import 'package:path/path.dart' as p;
 import 'core/services/chat_service.dart';
 import 'core/services/model_manager.dart';
 import 'core/models/chat_message.dart';
-import 'core/models/chat_session.dart';
 import 'core/models/gguf_model.dart';
 import 'core/services/setup_screen.dart';
 import 'core/ui/settings_sheet.dart';

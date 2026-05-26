@@ -130,6 +130,7 @@ class _SetupScreenState extends State<SetupScreen> with SingleTickerProviderStat
     }
     
     stopwatch.stop();
+    debugPrint("Benchmark computed sum: $sum");
     final benchmarkTime = stopwatch.elapsedMilliseconds;
     
     String rank;
