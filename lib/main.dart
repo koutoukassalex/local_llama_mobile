@@ -492,7 +492,7 @@ class _LocalAIChatbotAppState extends State<LocalAIChatbotApp> {
     }
 
     return MaterialApp(
-      title: 'Antigravity Local AI',
+      title: 'locallAI',
       debugShowCheckedModeBanner: false,
       themeMode: activeTheme.isDark ? ThemeMode.dark : ThemeMode.light,
       theme: ThemeData(
@@ -870,7 +870,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text(
-              "Antigravity Local AI",
+              "locallAI",
               style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, letterSpacing: 0.5),
             ),
             const SizedBox(height: 2),
@@ -1061,7 +1061,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
             ),
             const SizedBox(height: 24),
             Text(
-              "Antigravity Local AI",
+              "locallAI",
               style: TextStyle(
                 fontSize: 26,
                 fontWeight: FontWeight.w900,
