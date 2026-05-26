@@ -13,6 +13,7 @@ import 'core/models/chat_message.dart';
 import 'core/models/gguf_model.dart';
 import 'core/services/setup_screen.dart';
 import 'core/ui/settings_sheet.dart';
+import 'core/ui/huggingface_search_screen.dart';
 import 'package:path_provider/path_provider.dart';
 
 void main() {
@@ -367,6 +368,7 @@ class RecommendedModel {
   final String quant;
   final String url;
   final String filename;
+  final bool isVision;
 
   const RecommendedModel({
     required this.name,
@@ -374,6 +376,7 @@ class RecommendedModel {
     required this.quant,
     required this.url,
     required this.filename,
+    this.isVision = false,
   });
 }
 
@@ -384,6 +387,7 @@ const List<RecommendedModel> recommendedModelsList = [
     quant: "Q4_K_M (Ultra-Fast & Tiny, ~398MB)",
     url: "https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct-GGUF/resolve/main/qwen2.5-0.5b-instruct-q4_k_m.gguf",
     filename: "qwen2.5-0.5b-instruct-q4_k_m.gguf",
+    isVision: false,
   ),
   RecommendedModel(
     name: "Qwen 2.5 0.5B Instruct Abliterated",
@@ -391,6 +395,7 @@ const List<RecommendedModel> recommendedModelsList = [
     quant: "Q4_K_M (Fast & Uncensored, ~398MB)",
     url: "https://huggingface.co/mradermacher/Qwen2.5-0.5B-Instruct-abliterated-v3-GGUF/resolve/main/Qwen2.5-0.5B-Instruct-abliterated-v3.Q4_K_M.gguf",
     filename: "Qwen2.5-0.5B-Instruct-abliterated-v3.Q4_K_M.gguf",
+    isVision: false,
   ),
   RecommendedModel(
     name: "Llama 3.2 1B Instruct",
@@ -398,6 +403,7 @@ const List<RecommendedModel> recommendedModelsList = [
     quant: "Q4_K_M (Dialogue Specialized, ~810MB)",
     url: "https://huggingface.co/bartowski/Llama-3.2-1B-Instruct-GGUF/resolve/main/Llama-3.2-1B-Instruct-Q4_K_M.gguf",
     filename: "Llama-3.2-1B-Instruct-Q4_K_M.gguf",
+    isVision: false,
   ),
   RecommendedModel(
     name: "Llama 3.2 1B Instruct Abliterated",
@@ -405,6 +411,15 @@ const List<RecommendedModel> recommendedModelsList = [
     quant: "Q4_K_M (Dialogue & Uncensored, ~810MB)",
     url: "https://huggingface.co/tensorblock/Llama-3.2-1B-Instruct-abliterated-GGUF/resolve/main/Llama-3.2-1B-Instruct-abliterated-Q4_K_M.gguf",
     filename: "Llama-3.2-1B-Instruct-abliterated-Q4_K_M.gguf",
+    isVision: false,
+  ),
+  RecommendedModel(
+    name: "Llama 3.2 11B Vision Instruct",
+    description: "Multimodal model that can understand images (Requires high RAM).",
+    quant: "Q4_K_M (Vision Capable, ~6.6GB)",
+    url: "https://huggingface.co/bartowski/Llama-3.2-11B-Vision-Instruct-GGUF/resolve/main/Llama-3.2-11B-Vision-Instruct-Q4_K_M.gguf",
+    filename: "Llama-3.2-11B-Vision-Instruct-Q4_K_M.gguf",
+    isVision: true,
   ),
   RecommendedModel(
     name: "Qwen 2.5 1.5B Instruct",
@@ -412,13 +427,15 @@ const List<RecommendedModel> recommendedModelsList = [
     quant: "Q4_K_M (High Quality Reasoning, ~1.1GB)",
     url: "https://huggingface.co/Qwen/Qwen2.5-1.5B-Instruct-GGUF/resolve/main/qwen2.5-1.5b-instruct-q4_k_m.gguf",
     filename: "qwen2.5-1.5b-instruct-q4_k_m.gguf",
+    isVision: false,
   ),
   RecommendedModel(
     name: "Qwen 2.5 1.5B Instruct Abliterated",
     description: "Reasoning model without safety alignments.",
     quant: "Q4_K_M (Smarter & Uncensored, ~1.1GB)",
-    url: "https://huggingface.co/mradermacher/Qwen2.5-1.5B-Instruct-abliterated-i1-GGUF/resolve/main/Qwen2.5-1.5B-Instruct-abliterated-i1.Q4_K_M.gguf",
-    filename: "Qwen2.5-1.5B-Instruct-abliterated-i1.Q4_K_M.gguf",
+    url: "https://huggingface.co/mradermacher/Qwen2.5-1.5B-Instruct-abliterated-i1-GGUF/resolve/main/Qwen2.5-1.5B-Instruct-abliterated.i1-Q4_K_M.gguf",
+    filename: "Qwen2.5-1.5B-Instruct-abliterated.i1-Q4_K_M.gguf",
+    isVision: false,
   ),
 ];
 
@@ -683,7 +700,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
     }
   }
 
-  Future<void> _handleDownload(BuildContext context, String url, String filename) async {
+  Future<void> _handleDownload(BuildContext context, String url, String filename, {bool? isVision}) async {
     setState(() {
       _isDownloading = true;
       _downloadProgress = 0.0;
@@ -695,6 +712,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
       final model = await manager.downloadModel(
         url: url,
         filename: filename,
+        isVision: isVision,
         onProgress: (progress) {
           setState(() {
             _downloadProgress = progress;
@@ -1713,6 +1731,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                       quant: model.quant,
                       url: model.url,
                       filename: model.filename,
+                      isVision: model.isVision,
                       installedModels: installedModels,
                     ),
                   );
@@ -1721,18 +1740,47 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: ElevatedButton.icon(
-              icon: const Icon(Icons.add_circle_outline_rounded),
-              label: const Text("Import Custom GGUF"),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: theme.primaryAccent,
-                foregroundColor: Colors.white,
-                minimumSize: const Size(double.infinity, 50),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                elevation: 4,
-              ),
-              onPressed: _isImporting || _isDownloading ? null : () => _handleImport(context),
+            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+            child: Column(
+              children: [
+                ElevatedButton.icon(
+                  icon: const Icon(Icons.search_rounded),
+                  label: const Text("Search Hugging Face"),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: theme.secondaryAccent.withOpacity(0.2),
+                    foregroundColor: theme.secondaryAccent,
+                    minimumSize: const Size(double.infinity, 50),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                    elevation: 0,
+                  ),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => HuggingFaceSearchScreen(
+                          onDownloadRequested: (url, filename, isVision) {
+                            _handleDownload(context, url, filename, isVision: isVision);
+                          },
+                        ),
+                      ),
+                    );
+                  },
+                ),
+                const SizedBox(height: 10),
+                ElevatedButton.icon(
+                  icon: const Icon(Icons.add_circle_outline_rounded),
+                  label: const Text("Import Custom GGUF"),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: theme.primaryAccent,
+                    foregroundColor: Colors.white,
+                    minimumSize: const Size(double.infinity, 50),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                    elevation: 4,
+                  ),
+                  onPressed: _isImporting || _isDownloading ? null : () => _handleImport(context),
+                ),
+                const SizedBox(height: 16),
+              ],
             ),
           ),
         ],
@@ -1747,6 +1795,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
     required String quant,
     required String url,
     required String filename,
+    required bool isVision,
     required List<GgufModel> installedModels,
   }) {
     final isInstalled = installedModels.any((m) => m.path.endsWith(filename));
@@ -1778,9 +1827,27 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  name,
-                  style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: theme.textPrimary),
+                Row(
+                  children: [
+                    Flexible(
+                      child: Text(
+                        name,
+                        style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: theme.textPrimary),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    if (isVision) ...[
+                      const SizedBox(width: 4),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+                        decoration: BoxDecoration(
+                          color: theme.secondaryAccent.withOpacity(0.15),
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: Text("👁️ Vision", style: TextStyle(fontSize: 8, color: theme.secondaryAccent, fontWeight: FontWeight.bold)),
+                      ),
+                    ],
+                  ],
                 ),
                 const SizedBox(height: 2),
                 Text(
@@ -1809,7 +1876,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
               constraints: const BoxConstraints(),
               onPressed: _isDownloading || _isImporting
                   ? null
-                  : () => _handleDownload(context, url, filename),
+                  : () => _handleDownload(context, url, filename, isVision: isVision),
             ),
         ],
       ),

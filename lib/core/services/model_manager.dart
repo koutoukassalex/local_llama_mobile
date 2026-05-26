@@ -78,9 +78,9 @@ class ModelManager {
     return _registerModel(filename, targetPath, sizeBytes);
   }
 
-  Future<GgufModel> _registerModel(String filename, String path, int sizeBytes) async {
+  Future<GgufModel> _registerModel(String filename, String path, int sizeBytes, {bool? isVisionOverride}) async {
     final family = GgufModel.detectFamily(filename);
-    final isVision = GgufModel.detectVision(filename);
+    final isVision = isVisionOverride ?? GgufModel.detectVision(filename);
     
     // Attempt basic quantization extraction from filename e.g. "q4_k_m" or "Q4_K_M"
     String quantization = "Q4_K_M (Assumed)";
@@ -155,6 +155,7 @@ class ModelManager {
   Future<GgufModel> downloadModel({
     required String url,
     required String filename,
+    bool? isVision,
     Function(double progress)? onProgress,
   }) async {
     final targetPath = p.join(_modelsDir.path, filename);
@@ -163,7 +164,7 @@ class ModelManager {
     // If already exists, return registered model
     if (await targetFile.exists()) {
       final sizeBytes = await targetFile.length();
-      return _registerModel(filename, targetPath, sizeBytes);
+      return _registerModel(filename, targetPath, sizeBytes, isVisionOverride: isVision);
     }
 
     final client = HttpClient();
@@ -198,7 +199,7 @@ class ModelManager {
     }
 
     await iosSink.close();
-    return _registerModel(filename, targetPath, downloadedBytes);
+    return _registerModel(filename, targetPath, downloadedBytes, isVisionOverride: isVision);
   }
 
   Future<void> _saveDatabase() async {
