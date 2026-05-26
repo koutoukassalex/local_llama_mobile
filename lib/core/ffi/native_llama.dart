@@ -57,6 +57,7 @@ class NativeLlama {
   late final void Function(LlamaContextPtr ctx) contextFree;
   late final void Function(LlamaModelPtr model) modelFree;
   late final void Function(LlamaContextPtr ctx) kvCacheClear;
+  late final Pointer<Utf8> Function() getLastError;
 
   static final NativeLlama instance = NativeLlama._internal();
 
@@ -115,6 +116,10 @@ class NativeLlama {
     kvCacheClear = _lib
         .lookup<NativeFunction<Void Function(LlamaContextPtr)>>('llama_kv_cache_clear_mobile')
         .asFunction();
+
+    getLastError = _lib
+        .lookup<NativeFunction<Pointer<Utf8> Function()>>('llama_get_last_error_mobile')
+        .asFunction();
   }
 
   /// Utility to build a default parameters struct.
@@ -131,8 +136,10 @@ class NativeLlama {
     struct.temp = 0.7;
     struct.topP = 0.9;
     struct.topK = 40;
-    struct.useMmap = true; // High importance: reduces RAM consumption dramatically
-    struct.useMlock = false;
+    // iOS App Sandbox: memory-mapping is blocked for user-imported files.
+    // Use mmap only on Android/macOS where it safely reduces RAM consumption.
+    struct.useMmap = !Platform.isIOS;
+    struct.useMlock = false; // mlock is generally unsupported in mobile sandboxes
     struct.flashAttn = true; // Reduces memory attention quadratic bounds
     return pointer;
   }

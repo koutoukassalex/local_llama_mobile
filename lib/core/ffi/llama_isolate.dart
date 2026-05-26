@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:ffi';
+import 'dart:io';
 import 'dart:isolate';
 import 'package:ffi/ffi.dart';
 import 'native_llama.dart';
@@ -30,10 +31,10 @@ class LoadModelCommand extends LlamaCommand {
 
   LoadModelCommand({
     required this.modelPath,
-    this.nCtx = 2048,
-    this.nGpuLayers = 99, // -1 or 99 maps to all layers to GPU
+    int? nCtx,
+    this.nGpuLayers = 99, // -1 or 99 maps to all layers to GPU; C++ retries with 0 on OOM
     this.nThreads = 4,
-  });
+  }) : nCtx = nCtx ?? (Platform.isIOS ? 1024 : 2048);
 }
 
 class GenerateCommand extends LlamaCommand {
@@ -245,16 +246,35 @@ class LlamaIsolateManager {
 
           if (modelPtr == nullptr) {
             calloc.free(paramsPtr);
-            mainSendPort.send(LlamaStatusEvent(status: "Error: Model loading failed. RAM exceeded or invalid GGUF format.", isReady: false));
+            
+            // Fetch internal error message from C++
+            final errorPtr = nativeLlama.getLastError();
+            final cppError = errorPtr != nullptr ? errorPtr.toDartString() : "Unknown error";
+            
+            // Check file size to diagnose truncated downloads
+            final file = File(message.modelPath);
+            final sizeStr = file.existsSync() ? "${(file.lengthSync() / (1024 * 1024)).toStringAsFixed(1)} MB" : "File not found";
+
+            mainSendPort.send(LlamaStatusEvent(
+              status: "Error: Model load failed for '${message.modelPath.split('/').last}' ($sizeStr).\n"
+                      "Engine details: $cppError\n"
+                      "If the size is smaller than expected, the download was likely interrupted.",
+              isReady: false,
+            ));
             return;
           }
 
           ctxPtr = nativeLlama.contextCreate(modelPtr, params);
           calloc.free(paramsPtr);
           if (ctxPtr == nullptr) {
+            final errorPtr = nativeLlama.getLastError();
+            final cppError = errorPtr != nullptr ? errorPtr.toDartString() : "Unknown error";
             nativeLlama.modelFree(modelPtr);
             modelPtr = nullptr;
-            mainSendPort.send(LlamaStatusEvent(status: "Error: Context allocation failed.", isReady: false));
+            mainSendPort.send(LlamaStatusEvent(
+              status: "Error: Context allocation failed.\nEngine details: $cppError", 
+              isReady: false
+            ));
             return;
           }
 

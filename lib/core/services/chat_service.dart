@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:uuid/uuid.dart';
 import '../ffi/llama_isolate.dart';
@@ -35,7 +36,9 @@ class ChatService extends ChangeNotifier {
   String _systemPrompt = "You are a helpful, respectful, and fully offline AI mobile assistant. Respond accurately and concisely.";
 
   // Hardware Parameters
-  int _nCtx = 2048;
+  // Use 1024 context on iOS (reduces KV-cache memory by ~50% vs 2048, critical on 4-6GB devices)
+  // Use 2048 on Android where memory management is more flexible
+  int _nCtx = Platform.isIOS ? 1024 : 2048;
   int _nGpuLayers = 99;
   int _nThreads = 4;
 

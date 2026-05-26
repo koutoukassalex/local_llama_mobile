@@ -38,6 +38,13 @@ __attribute__((visibility("default")))
 void llama_backend_init_mobile(void);
 
 /**
+ * Get the last detailed error message from the engine.
+ * Useful for diagnosing why llama_model_load_from_file returned NULL.
+ */
+__attribute__((visibility("default")))
+const char* llama_get_last_error_mobile(void);
+
+/**
  * Load a GGUF model from the specified absolute file path.
  * Returns a pointer to the loaded model, or NULL on failure.
  */

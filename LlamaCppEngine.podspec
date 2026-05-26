@@ -10,26 +10,42 @@ Pod::Spec.new do |s|
   s.platform         = :ios, '13.0'
   s.static_framework = true
 
-  # No copy needed; reference source directly
-  # spec_dir = File.dirname(__FILE__)
-  # s.prepare_command = <<-CMD
-  #   echo "No prepare needed"
-  # CMD
+  # Pre-compile the Metal shader into a .metallib at pod-install time.
+  # On iOS release builds, the Metal compiler is NOT available at runtime,
+  # so `GGML_METAL_EMBED_LIBRARY=0` must load a pre-compiled .metallib file.
+  s.prepare_command = <<-CMD
+    set -e
+    METAL_SRC="android/app/src/main/cpp/llama_cpp/ggml/src/ggml-metal/ggml-metal.metal"
+    METAL_METALLIB="android/app/src/main/cpp/llama_cpp/ggml/src/ggml-metal/default.metallib"
+    if xcrun --sdk iphoneos --find metal > /dev/null 2>&1; then
+      xcrun --sdk iphoneos metal -std=ios-metal2.4 "$METAL_SRC" -o /tmp/ggml-metal-ios.air && \
+      xcrun --sdk iphoneos metallib /tmp/ggml-metal-ios.air -o "$METAL_METALLIB" && \
+      echo "[LlamaCppEngine] Metal shader compiled successfully: $METAL_METALLIB" || \
+      echo "[LlamaCppEngine] WARNING: Metal compilation failed, will fall back to runtime source compilation"
+    else
+      echo "[LlamaCppEngine] xcrun metal not found, skipping metallib pre-compilation"
+    fi
+    # Generate wrapper files for ARM architecture to prevent CocoaPods from overwriting
+    # the generic quants.o and repack.o files (flat namespace object collision)
+    echo '#include "quants.c"' > "android/app/src/main/cpp/llama_cpp/ggml/src/ggml-cpu/arch/arm/quants_arm_wrapper.c"
+    echo '#include "repack.cpp"' > "android/app/src/main/cpp/llama_cpp/ggml/src/ggml-cpu/arch/arm/repack_arm_wrapper.cpp"
+  CMD
 
   cpp_root = 'android/app/src/main/cpp'
   llama_root = "#{cpp_root}/llama_cpp"
 
   # ---- Source files ----
-  # 1. Our FFI wrapper
+  # 1. Our FFI wrapper and core wrapper
   s.source_files = [
     "#{cpp_root}/llama_wrapper.cpp",
     "#{cpp_root}/llama_wrapper.h",
+    "#{cpp_root}/llama_core.cpp",
 
     # 2. llama.cpp core library sources
     "#{llama_root}/src/*.cpp",
     "#{llama_root}/src/*.h",
 
-    # 2b. llama.cpp model implementations (vtables for all model architectures)
+    # 2b. llama.cpp model implementations
     "#{llama_root}/src/models/*.cpp",
     "#{llama_root}/src/models/*.h",
 
@@ -48,50 +64,34 @@ Pod::Spec.new do |s|
     "#{llama_root}/ggml/src/ggml-backend-impl.h",
     "#{llama_root}/ggml/src/ggml-common.h",
 
-    # 3b. ggml dynamic loading support (dl_load_library, dl_get_sym, dl_error)
+    # 3b. ggml dynamic loading support
     "#{llama_root}/ggml/src/ggml-backend-dl.cpp",
     "#{llama_root}/ggml/src/ggml-backend-dl.h",
 
     # 4. ggml CPU backend
-    "#{llama_root}/ggml/src/ggml-cpu/ggml-cpu.c",
-    "#{llama_root}/ggml/src/ggml-cpu/ggml-cpu.cpp",
-    "#{llama_root}/ggml/src/ggml-cpu/ggml-cpu-impl.h",
-    "#{llama_root}/ggml/src/ggml-cpu/common.h",
-    "#{llama_root}/ggml/src/ggml-cpu/ops.cpp",
-    "#{llama_root}/ggml/src/ggml-cpu/ops.h",
-    "#{llama_root}/ggml/src/ggml-cpu/binary-ops.cpp",
-    "#{llama_root}/ggml/src/ggml-cpu/binary-ops.h",
-    "#{llama_root}/ggml/src/ggml-cpu/unary-ops.cpp",
-    "#{llama_root}/ggml/src/ggml-cpu/unary-ops.h",
-    "#{llama_root}/ggml/src/ggml-cpu/vec.cpp",
-    "#{llama_root}/ggml/src/ggml-cpu/vec.h",
-    "#{llama_root}/ggml/src/ggml-cpu/traits.cpp",
-    "#{llama_root}/ggml/src/ggml-cpu/traits.h",
-    "#{llama_root}/ggml/src/ggml-cpu/repack.cpp",
-    "#{llama_root}/ggml/src/ggml-cpu/repack.h",
-    "#{llama_root}/ggml/src/ggml-cpu/quants.c",
-    "#{llama_root}/ggml/src/ggml-cpu/quants.h",
-    "#{llama_root}/ggml/src/ggml-cpu/simd-mappings.h",
-    "#{llama_root}/ggml/src/ggml-cpu/hbm.cpp",
-    "#{llama_root}/ggml/src/ggml-cpu/hbm.h",
-    "#{llama_root}/ggml/src/ggml-cpu/arch-fallback.h",
+    "#{llama_root}/ggml/src/ggml-cpu/*.{c,cpp,h}",
+    "#{llama_root}/ggml/src/ggml-cpu/llamafile/*.{c,cpp,h}",
+    "#{llama_root}/ggml/src/ggml-cpu/arch/arm/*_wrapper.{c,cpp}",
+    "#{llama_root}/ggml/src/ggml-cpu/arch/arm/cpu-feats.cpp",
 
     # 5. ggml Metal GPU backend (iOS GPU acceleration!)
-    "#{llama_root}/ggml/src/ggml-metal/ggml-metal.cpp",
-    "#{llama_root}/ggml/src/ggml-metal/ggml-metal-common.cpp",
-    "#{llama_root}/ggml/src/ggml-metal/ggml-metal-common.h",
-    "#{llama_root}/ggml/src/ggml-metal/ggml-metal-context.h",
-    "#{llama_root}/ggml/src/ggml-metal/ggml-metal-context.m",
-    "#{llama_root}/ggml/src/ggml-metal/ggml-metal-device.cpp",
-    "#{llama_root}/ggml/src/ggml-metal/ggml-metal-device.h",
-    "#{llama_root}/ggml/src/ggml-metal/ggml-metal-device.m",
-    "#{llama_root}/ggml/src/ggml-metal/ggml-metal-impl.h",
-    "#{llama_root}/ggml/src/ggml-metal/ggml-metal-ops.cpp",
-    "#{llama_root}/ggml/src/ggml-metal/ggml-metal-ops.h"
+    "#{llama_root}/ggml/src/ggml-metal/*.{c,cpp,m,h}"
+  ]
+
+  # ---- Exclude files to prevent object file collisions ----
+  s.exclude_files = [
+    "#{llama_root}/src/llama.cpp" # Wrapped by llama_core.cpp to avoid collision with models/llama.cpp
   ]
 
   # ---- Metal shader file ----
-  s.resources = "#{llama_root}/ggml/src/ggml-metal/ggml-metal.metal"
+  # Include both raw .metal source (for runtime compilation fallback) and pre-compiled .metallib
+  # The pre-compiled .metallib (generated by prepare_command) is preferred at runtime on release builds
+  s.resources = [
+    "#{llama_root}/ggml/src/ggml-metal/ggml-metal.metal",
+    "#{llama_root}/ggml/src/ggml-metal/ggml-metal-common.h",
+    "#{llama_root}/ggml/src/ggml-metal/default.metallib",
+    "#{llama_root}/ggml/src/ggml-common.h"
+  ]
 
   # ---- Header search paths ----
   s.pod_target_xcconfig = {
@@ -105,7 +105,7 @@ Pod::Spec.new do |s|
       "\"$(PODS_TARGET_SRCROOT)/#{llama_root}/ggml/src/ggml-metal\"",
       "\"$(PODS_TARGET_SRCROOT)/#{llama_root}/ggml/src/ggml-common.h\"",
     ].join(' '),
-    'GCC_PREPROCESSOR_DEFINITIONS' => 'GGML_USE_METAL=1 GGML_METAL_EMBED_LIBRARY=0 NDEBUG=1 ACCELERATE_NEW_LAPACK=1 ACCELERATE_LAPACK_ILP64=1 GGML_VERSION=\"0.12.0\" GGML_COMMIT=\"unknown\"',
+    'GCC_PREPROCESSOR_DEFINITIONS' => 'LLAMA_BUILD=1 GGML_USE_METAL=1 GGML_USE_CPU=1 GGML_METAL_EMBED_LIBRARY=0 NDEBUG=1 ACCELERATE_NEW_LAPACK=1 ACCELERATE_LAPACK_ILP64=1 GGML_VERSION=\"0.12.0\" GGML_COMMIT=\"unknown\"',
     'CLANG_CXX_LANGUAGE_STANDARD' => 'c++17',
     'OTHER_CFLAGS' => '-fno-objc-arc -w',
     'OTHER_CPLUSPLUSFLAGS' => '-fno-objc-arc -w -std=c++17',
@@ -113,7 +113,7 @@ Pod::Spec.new do |s|
 
   # Force the application (Runner) to link our FFI symbols, preventing dead-code stripping
   s.user_target_xcconfig = {
-    'OTHER_LDFLAGS' => '-Wl,-u,_llama_backend_init_mobile -Wl,-u,_llama_model_load_from_file_mobile -Wl,-u,_llama_context_create_mobile -Wl,-u,_llama_inference_stream_mobile -Wl,-u,_llama_context_free_mobile -Wl,-u,_llama_model_free_mobile -Wl,-u,_llama_kv_cache_clear_mobile'
+    'OTHER_LDFLAGS' => '-Wl,-u,_llama_backend_init_mobile -Wl,-u,_llama_get_last_error_mobile -Wl,-u,_llama_model_load_from_file_mobile -Wl,-u,_llama_context_create_mobile -Wl,-u,_llama_inference_stream_mobile -Wl,-u,_llama_context_free_mobile -Wl,-u,_llama_model_free_mobile -Wl,-u,_llama_kv_cache_clear_mobile'
   }
 
   # ---- System frameworks ----

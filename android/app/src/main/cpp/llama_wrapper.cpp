@@ -7,9 +7,31 @@
 #include <mutex>
 #include <thread>
 #include <algorithm>
+#include <sys/stat.h>   // for stat() to verify file existence
+
+// iOS App Sandbox detection: mmap is prohibited on user-imported files in sandboxed iOS apps.
+// When running on iOS (TARGET_OS_IOS defined by Apple Clang toolchain) force mmap=false, mlock=false.
+#if defined(TARGET_OS_IOS) && TARGET_OS_IOS
+  #define LLAMA_FORCE_NO_MMAP 1
+#else
+  #define LLAMA_FORCE_NO_MMAP 0
+#endif
 
 // Thread-safety mutex
 static std::mutex g_llama_mutex;
+
+// Global error string accessible by Dart
+static std::string g_last_error_msg = "";
+
+// Custom logger to capture internal llama.cpp errors
+static void llama_mobile_log_callback(ggml_log_level level, const char * text, void * user_data) {
+    if (level >= GGML_LOG_LEVEL_ERROR || level == GGML_LOG_LEVEL_WARN) {
+        g_last_error_msg += text;
+    }
+    // Still output to stderr for Xcode console
+    fputs(text, stderr);
+    fflush(stderr);
+}
 
 // Custom token to UTF-8 buffer helper to resolve half-character streaming bugs (e.g. emojis)
 struct utf8_decoder {
@@ -65,27 +87,92 @@ void llama_backend_init_mobile(void) {
     std::lock_guard<std::mutex> lock(g_llama_mutex);
     static bool initialized = false;
     if (!initialized) {
+        // Intercept logs to capture internal engine errors
+        llama_log_set(llama_mobile_log_callback, nullptr);
+
         // Initialize llama.cpp backend, supporting NUMA and platform specifics
         llama_backend_init();
         initialized = true;
     }
 }
 
+const char* llama_get_last_error_mobile(void) {
+    std::lock_guard<std::mutex> lock(g_llama_mutex);
+    return g_last_error_msg.c_str();
+}
+
 llama_model_ptr llama_model_load_from_file_mobile(const char* model_path, llama_params_t params) {
     std::lock_guard<std::mutex> lock(g_llama_mutex);
-    if (!model_path) return nullptr;
+    g_last_error_msg.clear();
+
+    if (!model_path) {
+        g_last_error_msg = "model_path provided by Dart is null.";
+        fprintf(stderr, "[llama_mobile] ERROR: %s\n", g_last_error_msg.c_str());
+        return nullptr;
+    }
+
+    // Diagnostic: verify the file actually exists before attempting load
+    struct stat st;
+    if (stat(model_path, &st) != 0 || !S_ISREG(st.st_mode)) {
+        g_last_error_msg = std::string("File does not exist or is not a regular file: ") + model_path;
+        fprintf(stderr, "[llama_mobile] ERROR: %s\n", g_last_error_msg.c_str());
+        return nullptr;
+    }
+    
+    // Check if file is suspiciously small (e.g. truncated download)
+    if (st.st_size < 1024 * 1024) { // Less than 1MB
+        g_last_error_msg = "File is unusually small (" + std::to_string(st.st_size) + " bytes). The download may have been interrupted.";
+        fprintf(stderr, "[llama_mobile] ERROR: %s\n", g_last_error_msg.c_str());
+        return nullptr;
+    }
+
+    fprintf(stderr, "[llama_mobile] Loading model: %s (%.1f MB)\n", model_path, st.st_size / (1024.0 * 1024.0));
 
     llama_model_params mparams = llama_model_default_params();
     mparams.n_gpu_layers = params.n_gpu_layers;
-    mparams.use_mmap = params.use_mmap;
-    mparams.use_mlock = params.use_mlock;
 
+    // iOS App Sandbox: never use mmap or mlock on sandboxed iOS — they cause SIGBUS or silent nullptr.
+    // For Android and macOS, respect user preference.
+#if LLAMA_FORCE_NO_MMAP
+    mparams.use_mmap  = false;
+    mparams.use_mlock = false;
+    fprintf(stderr, "[llama_mobile] iOS sandbox mode: mmap=false, mlock=false, n_gpu_layers=%d\n", mparams.n_gpu_layers);
+#else
+    mparams.use_mmap  = params.use_mmap;
+    mparams.use_mlock = params.use_mlock;
+    fprintf(stderr, "[llama_mobile] Loading with mmap=%d, mlock=%d, n_gpu_layers=%d\n",
+            (int)mparams.use_mmap, (int)mparams.use_mlock, mparams.n_gpu_layers);
+#endif
+
+    // First attempt: with the requested GPU layers (Metal acceleration)
     llama_model* model = llama_model_load_from_file(model_path, mparams);
+
+    // Fallback: if Metal OOM or layer-load failure, retry with CPU only
+    if (model == nullptr && mparams.n_gpu_layers > 0) {
+        fprintf(stderr, "[llama_mobile] GPU load failed (n_gpu_layers=%d). Retrying with CPU only (n_gpu_layers=0)...\n", mparams.n_gpu_layers);
+        mparams.n_gpu_layers = 0;
+        model = llama_model_load_from_file(model_path, mparams);
+        if (model != nullptr) {
+            fprintf(stderr, "[llama_mobile] CPU fallback load succeeded.\n");
+        }
+    }
+
+    if (model == nullptr) {
+        if (g_last_error_msg.empty()) {
+            g_last_error_msg = "llama_model_load_from_file returned NULL without specifying an error. Check if the file is a valid GGUF.";
+        }
+        fprintf(stderr, "[llama_mobile] ERROR: %s\n", g_last_error_msg.c_str());
+    } else {
+        g_last_error_msg.clear();
+        fprintf(stderr, "[llama_mobile] Model loaded successfully.\n");
+    }
+
     return reinterpret_cast<llama_model_ptr>(model);
 }
 
 llama_context_ptr llama_context_create_mobile(llama_model_ptr model_ptr, llama_params_t params) {
     std::lock_guard<std::mutex> lock(g_llama_mutex);
+    g_last_error_msg.clear();
     if (!model_ptr) return nullptr;
 
     llama_model* model = reinterpret_cast<llama_model*>(model_ptr);
