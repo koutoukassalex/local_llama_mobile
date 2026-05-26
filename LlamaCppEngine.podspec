@@ -10,22 +10,14 @@ Pod::Spec.new do |s|
   s.platform         = :ios, '13.0'
   s.static_framework = true
 
-  spec_dir = File.dirname(__FILE__)
-  s.prepare_command = <<-CMD
-    echo "=== podspec prepare_command start ==="
-    echo "Current directory: $(pwd)"
-    echo "Spec directory: #{spec_dir}"
-    echo "Listing source llama_cpp folder:"
-    ls -la "#{spec_dir}/android/app/src/main/cpp/llama_cpp" || echo "llama_cpp not found!"
-    rm -rf "#{spec_dir}/ios_llama_core"
-    cp -R "#{spec_dir}/android/app/src/main/cpp/llama_cpp" "#{spec_dir}/ios_llama_core"
-    echo "Listing destination ios_llama_core folder:"
-    ls -la "#{spec_dir}/ios_llama_core" || echo "ios_llama_core not found!"
-    echo "=== podspec prepare_command end ==="
-  CMD
+  # No copy needed; reference source directly
+  # spec_dir = File.dirname(__FILE__)
+  # s.prepare_command = <<-CMD
+  #   echo "No prepare needed"
+  # CMD
 
   cpp_root = 'android/app/src/main/cpp'
-  llama_root = 'ios_llama_core'
+  llama_root = "#{cpp_root}/llama_cpp"
 
   # ---- Source files ----
   # 1. Our FFI wrapper
