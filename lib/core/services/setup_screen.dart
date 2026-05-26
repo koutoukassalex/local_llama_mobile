@@ -208,7 +208,7 @@ class _SetupScreenState extends State<SetupScreen> with SingleTickerProviderStat
                 ),
                 const SizedBox(height: 6),
                 Text(
-                  "Let's audit your phone specifications to ensure premium high-performance local AI inference.",
+                  "Let's audit your phone specifications to ensure premium high-performance locallAI inference.",
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 12.5,

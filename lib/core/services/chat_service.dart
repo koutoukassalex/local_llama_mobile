@@ -140,7 +140,7 @@ class ChatService extends ChangeNotifier {
     try {
       if (Platform.isAndroid) {
         const androidConfig = FlutterBackgroundAndroidConfig(
-          notificationTitle: "Local AI Generating",
+          notificationTitle: "locallAI Generating",
           notificationText: "Running offline AI model in background.",
           notificationIcon: AndroidResource(name: 'launcher_icon', defType: 'mipmap'), 
         );
