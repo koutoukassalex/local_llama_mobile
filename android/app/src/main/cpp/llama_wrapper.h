@@ -38,6 +38,12 @@ __attribute__((visibility("default")))
 void llama_backend_init_mobile(void);
 
 /**
+ * Stop any ongoing inference stream immediately.
+ */
+__attribute__((visibility("default")))
+void llama_interrupt_inference_mobile(void);
+
+/**
  * Get the last detailed error message from the engine.
  * Useful for diagnosing why llama_model_load_from_file returned NULL.
  */

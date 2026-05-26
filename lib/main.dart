@@ -1350,22 +1350,45 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                 ),
               ),
               const SizedBox(width: 8),
-              GestureDetector(
-                onTap: isInteractive ? () => _handleSend(chatService) : null,
-                child: Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    gradient: isInteractive ? theme.bubbleGradient : null,
-                    color: isInteractive ? null : theme.cardBg,
+              if (chatService.isGenerating)
+                GestureDetector(
+                  onTap: () {
+                    // Stop C++ backend generation immediately
+                    chatService.stopEngineInference();
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Colors.redAccent.withOpacity(0.8),
+                      boxShadow: [
+                        BoxShadow(color: Colors.redAccent.withOpacity(0.4), blurRadius: 8, spreadRadius: 1)
+                      ],
+                    ),
+                    child: const Icon(
+                      Icons.stop_rounded,
+                      color: Colors.white,
+                      size: 18,
+                    ),
                   ),
-                  child: Icon(
-                    chatService.isGenerating ? Icons.more_horiz : Icons.send_rounded,
-                    color: isInteractive ? Colors.white : theme.textSecondary.withOpacity(0.3),
-                    size: 18,
+                )
+              else
+                GestureDetector(
+                  onTap: isInteractive ? () => _handleSend(chatService) : null,
+                  child: Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      gradient: isInteractive ? theme.bubbleGradient : null,
+                      color: isInteractive ? null : theme.cardBg,
+                    ),
+                    child: Icon(
+                      Icons.send_rounded,
+                      color: isInteractive ? Colors.white : theme.textSecondary.withOpacity(0.3),
+                      size: 18,
+                    ),
                   ),
                 ),
-              ),
             ],
           ),
         ],
@@ -1600,13 +1623,33 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                       child: ListTile(
                         contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                         dense: true,
-                        title: Text(
-                          m.name,
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.bold,
-                            color: theme.textPrimary,
-                          ),
+                        title: Row(
+                          children: [
+                            Flexible(
+                              child: Text(
+                                m.name,
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold,
+                                  color: theme.textPrimary,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                            if (m.isVision) ...[
+                              const SizedBox(width: 4),
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                                decoration: BoxDecoration(
+                                  color: theme.secondaryAccent.withOpacity(0.15),
+                                  borderRadius: BorderRadius.circular(4),
+                                  border: Border.all(color: theme.secondaryAccent.withOpacity(0.5), width: 0.5),
+                                ),
+                                child: Text("👁️ Vision", style: TextStyle(fontSize: 8, color: theme.secondaryAccent, fontWeight: FontWeight.bold)),
+                              ),
+                            ],
+                          ],
                         ),
                         subtitle: Text(
                           "${m.quantization} • ${m.sizeInGB.toStringAsFixed(2)} GB",

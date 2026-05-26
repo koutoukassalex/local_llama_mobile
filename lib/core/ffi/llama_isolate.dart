@@ -53,6 +53,8 @@ class GenerateCommand extends LlamaCommand {
 
 class UnloadModelCommand extends LlamaCommand {}
 
+class StopInferenceCommand extends LlamaCommand {}
+
 /// Events passed from Background Isolate to UI Main Isolate
 class LlamaStreamEvent {
   final String token;
@@ -167,6 +169,11 @@ class LlamaIsolateManager {
   /// Unloads the model, releasing all allocated RAM instantly
   void unloadModel() {
     _toIsolateSendPort?.send(UnloadModelCommand());
+  }
+
+  /// Interrupts ongoing inference loop in C++
+  void stopInference() {
+    _toIsolateSendPort?.send(StopInferenceCommand());
   }
 
   /// Terminates the background isolate and frees the ports
@@ -337,6 +344,10 @@ class LlamaIsolateManager {
           modelPtr = nullptr;
         }
         mainSendPort.send(LlamaStatusEvent(status: "Model unloaded. Standby mode.", isReady: false));
+      }
+      
+      else if (message is StopInferenceCommand) {
+        nativeLlama.interruptInference();
       }
     });
   }

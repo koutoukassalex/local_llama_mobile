@@ -20,6 +20,9 @@
 // Thread-safety mutex
 static std::mutex g_llama_mutex;
 
+// Global interrupt flag for inference
+static std::atomic<bool> g_interrupt_inference(false);
+
 // Global error string accessible by Dart
 static std::string g_last_error_msg = "";
 
@@ -82,6 +85,10 @@ struct utf8_decoder {
 };
 
 extern "C" {
+
+void llama_interrupt_inference_mobile(void) {
+    g_interrupt_inference = true;
+}
 
 void llama_backend_init_mobile(void) {
     std::lock_guard<std::mutex> lock(g_llama_mutex);
@@ -203,6 +210,9 @@ bool llama_inference_stream_mobile(
 ) {
     if (!model_ptr || !ctx_ptr || !prompt || !callback) return false;
 
+    // Reset interrupt flag for this session
+    g_interrupt_inference = false;
+
     llama_model* model = reinterpret_cast<llama_model*>(model_ptr);
     llama_context* ctx = reinterpret_cast<llama_context*>(ctx_ptr);
 
@@ -234,6 +244,8 @@ bool llama_inference_stream_mobile(
     // 5. Evaluate the prompt tokens in batches
     size_t processed_tokens = 0;
     while (processed_tokens < tokens.size()) {
+        if (g_interrupt_inference) break;
+        
         size_t batch_size = std::min((size_t)params.n_batch, tokens.size() - processed_tokens);
         
         batch.n_tokens = batch_size;
@@ -268,6 +280,7 @@ bool llama_inference_stream_mobile(
     utf8_decoder decoder;
 
     while (n_generated < n_predict && n_curr < n_ctx) {
+        if (g_interrupt_inference) break;
         // Sample the next token
         const llama_token id = llama_sampler_sample(smpl, ctx, -1);
         

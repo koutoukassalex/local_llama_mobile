@@ -14,6 +14,7 @@ class GgufModel {
   final int sizeBytes;
   final ModelFamily family;
   final String quantization;
+  final bool isVision;
 
   GgufModel({
     required this.id,
@@ -22,9 +23,21 @@ class GgufModel {
     required this.sizeBytes,
     required this.family,
     required this.quantization,
+    this.isVision = false,
   });
 
   double get sizeInGB => sizeBytes / (1024 * 1024 * 1024);
+
+  static bool detectVision(String filename) {
+    final lower = filename.toLowerCase();
+    return lower.contains('llava') || 
+           lower.contains('vl-') || 
+           lower.contains('-vl') || 
+           lower.contains('vision') || 
+           lower.contains('minicpm-v') || 
+           lower.contains('obsidian') ||
+           lower.contains('moondream');
+  }
 
   static ModelFamily detectFamily(String filename) {
     final lower = filename.toLowerCase();

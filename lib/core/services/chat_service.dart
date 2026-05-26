@@ -2,6 +2,8 @@ import 'dart:async';
 import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:uuid/uuid.dart';
+import 'package:flutter_background/flutter_background.dart';
+import 'package:audio_session/audio_session.dart';
 import '../ffi/llama_isolate.dart';
 import '../models/chat_message.dart';
 import '../models/chat_session.dart';
@@ -133,6 +135,30 @@ class ChatService extends ChangeNotifier {
 
     await _isolateManager.start();
     await _modelManager.init();
+
+    // Configure Background Execution
+    try {
+      if (Platform.isAndroid) {
+        const androidConfig = FlutterBackgroundAndroidConfig(
+          notificationTitle: "Local AI Generating",
+          notificationText: "Running offline AI model in background.",
+          notificationImportance: AndroidNotificationImportance.Default,
+          notificationIcon: AndroidResource(name: 'ic_launcher', defType: 'mipmap'), 
+        );
+        await FlutterBackground.initialize(androidConfig: androidConfig);
+      } else if (Platform.isIOS) {
+        final session = await AudioSession.instance;
+        await session.configure(const AudioSessionConfiguration(
+          avAudioSessionCategory: AVAudioSessionCategory.playback,
+          avAudioSessionCategoryOptions: AVAudioSessionCategoryOptions.mixWithOthers,
+          avAudioSessionMode: AVAudioSessionMode.defaultMode,
+          avAudioSessionRouteSharingPolicy: AVAudioSessionRouteSharingPolicy.defaultPolicy,
+          avAudioSessionSetActiveOptions: AVAudioSessionSetActiveOptions.none,
+        ));
+      }
+    } catch (e) {
+      debugPrint("Background init failed: $e");
+    }
 
     // Create an initial clean session
     createNewSession(title: "First Thread");
@@ -268,6 +294,18 @@ class ChatService extends ChangeNotifier {
     // Cancel any previous subscriptions just in case
     await _tokenSubscription?.cancel();
 
+    // Activate Background Keep-Alive
+    try {
+      if (Platform.isAndroid) {
+        await FlutterBackground.enableBackgroundExecution();
+      } else if (Platform.isIOS) {
+        final session = await AudioSession.instance;
+        await session.setActive(true);
+      }
+    } catch (e) {
+      debugPrint("Could not activate background execution: $e");
+    }
+
     // 4. Stream response using customized parameters from sliders
     StringBuffer aiBuffer = StringBuffer();
     
@@ -316,10 +354,27 @@ class ChatService extends ChangeNotifier {
     }
   }
 
+  void stopEngineInference() {
+    _isolateManager.stopInference();
+    _stopInference();
+  }
+
   void _stopInference() {
     _tokenSubscription?.cancel();
     _tokenSubscription = null;
     _isGenerating = false;
+    notifyListeners();
+    
+    // Deactivate Background Keep-Alive
+    try {
+      if (Platform.isAndroid) {
+        FlutterBackground.disableBackgroundExecution();
+      } else if (Platform.isIOS) {
+        AudioSession.instance.then((session) => session.setActive(false));
+      }
+    } catch (e) {
+      debugPrint("Could not deactivate background execution: $e");
+    }
   }
 
   void clearConversation() {

@@ -80,6 +80,7 @@ class ModelManager {
 
   Future<GgufModel> _registerModel(String filename, String path, int sizeBytes) async {
     final family = GgufModel.detectFamily(filename);
+    final isVision = GgufModel.detectVision(filename);
     
     // Attempt basic quantization extraction from filename e.g. "q4_k_m" or "Q4_K_M"
     String quantization = "Q4_K_M (Assumed)";
@@ -96,6 +97,7 @@ class ModelManager {
       sizeBytes: sizeBytes,
       family: family,
       quantization: quantization,
+      isVision: isVision,
     );
 
     // Save to list and update local JSON DB
@@ -139,6 +141,7 @@ class ModelManager {
               orElse: () => ModelFamily.unknown,
             ),
             quantization: item['quantization'],
+            isVision: item['isVision'] ?? false,
           ));
         }
       }
@@ -206,6 +209,7 @@ class ModelManager {
       'sizeBytes': m.sizeBytes,
       'family': m.family.toString(),
       'quantization': m.quantization,
+      'isVision': m.isVision,
     }).toList();
 
     await _databaseFile.writeAsString(jsonEncode(list));
