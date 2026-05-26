@@ -17,9 +17,13 @@ Pod::Spec.new do |s|
   # CRITICAL: ggml-metal.metal includes both:
   #   - "ggml-metal-impl.h"  (same dir: ggml/src/ggml-metal/)
   #   - "ggml-common.h"      (parent dir: ggml/src/)
-  # Both -I paths MUST be passed to xcrun metal, otherwise the compiler silently
-  # fails to produce default.metallib, the app falls back to runtime compilation,
-  # which also fails because the headers are not on the device filesystem.
+  # Both -I paths MUST be passed to xcrun metal.
+  #
+  # NOTE: We compile directly to .metallib in a single step (NOT via an intermediate
+  # .air file). The two-step approach (metal -> .air -> metallib) triggers:
+  #   LLVM ERROR: Unexpected bitcode file!
+  # on GitHub Actions macos-latest because the `metal` compiler and `metallib` tool
+  # can be from different Xcode toolchain versions. Single-step avoids this entirely.
   s.prepare_command = <<-CMD
     set -e
 
@@ -27,11 +31,11 @@ Pod::Spec.new do |s|
     GGML_SRC_DIR="android/app/src/main/cpp/llama_cpp/ggml/src"
     METAL_SRC="$METAL_DIR/ggml-metal.metal"
     METAL_METALLIB="$METAL_DIR/default.metallib"
-    AIR_TMP="/tmp/ggml-metal-ios.air"
 
     echo "[LlamaCppEngine] prepare_command: working dir = $(pwd)"
     echo "[LlamaCppEngine] Metal source   : $METAL_SRC"
     echo "[LlamaCppEngine] Output metallib: $METAL_METALLIB"
+    echo "[LlamaCppEngine] Xcode version  : $(xcodebuild -version 2>/dev/null || echo 'unknown')"
 
     if ! xcrun --sdk iphoneos --find metal > /dev/null 2>&1; then
       echo "[LlamaCppEngine] ERROR: Xcode Metal compiler not found." >&2
@@ -39,18 +43,15 @@ Pod::Spec.new do |s|
       exit 1
     fi
 
-    echo "[LlamaCppEngine] Compiling Metal shader to AIR..."
+    echo "[LlamaCppEngine] Compiling Metal shader directly to .metallib (single-step)..."
     xcrun --sdk iphoneos metal \
       -std=ios-metal2.4 \
       -I "$(pwd)/$METAL_DIR" \
       -I "$(pwd)/$GGML_SRC_DIR" \
       "$METAL_SRC" \
-      -o "$AIR_TMP"
+      -o "$METAL_METALLIB"
 
-    echo "[LlamaCppEngine] Linking AIR -> metallib..."
-    xcrun --sdk iphoneos metallib "$AIR_TMP" -o "$METAL_METALLIB"
-
-    echo "[LlamaCppEngine] SUCCESS: $METAL_METALLIB"
+    echo "[LlamaCppEngine] SUCCESS: $(ls -lh $METAL_METALLIB)"
 
     # Generate ARM wrapper files to prevent flat-namespace object collisions
     # when CocoaPods compiles both the generic and ARM-specific quant/repack objects.
