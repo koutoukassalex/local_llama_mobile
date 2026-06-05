@@ -1799,7 +1799,9 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
     required List<GgufModel> installedModels,
   }) {
     final isInstalled = installedModels.any((m) => m.path.endsWith(filename));
-    final isThisDownloading = _isDownloading && _downloadingModelName == name.replaceAll('_', ' ');
+    // _downloadingModelName is derived from the filename, so compare against filename
+    final expectedDownloadingName = filename.replaceAll('.gguf', '').replaceAll('_', ' ');
+    final isThisDownloading = _isDownloading && _downloadingModelName == expectedDownloadingName;
 
     return Container(
       padding: const EdgeInsets.all(10),

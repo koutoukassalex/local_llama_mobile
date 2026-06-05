@@ -151,7 +151,8 @@ class ModelManager {
     }
   }
 
-  /// Download model from URL directly into the sandbox
+  /// Download model from URL directly into the sandbox.
+  /// Follows HTTP redirects (e.g. HuggingFace 302 → CDN) automatically.
   Future<GgufModel> downloadModel({
     required String url,
     required String filename,
@@ -167,18 +168,24 @@ class ModelManager {
       return _registerModel(filename, targetPath, sizeBytes, isVisionOverride: isVision);
     }
 
-    final client = HttpClient();
-    // Configure longer timeout for big GGUF files
-    client.connectionTimeout = const Duration(seconds: 45);
-    
+    final client = HttpClient()
+      ..connectionTimeout = const Duration(seconds: 45)
+      // Follow redirects automatically (HuggingFace → CDN 302)
+      ..maxRedirects = 8
+      ..followRedirects = true;
+
     final request = await client.getUrl(Uri.parse(url));
     final response = await request.close();
 
     if (response.statusCode != 200) {
+      client.close();
       throw Exception("Download failed with HTTP ${response.statusCode}");
     }
 
-    final sizeBytes = response.contentLength;
+    // contentLength is -1 for chunked transfer-encoding — guard against it
+    final contentLength = response.contentLength;
+    final knownSize = contentLength > 0;
+
     final iosSink = targetFile.openWrite(mode: FileMode.write);
     int downloadedBytes = 0;
 
@@ -186,8 +193,8 @@ class ModelManager {
       await for (final chunk in response) {
         iosSink.add(chunk);
         downloadedBytes += chunk.length;
-        if (onProgress != null && sizeBytes > 0) {
-          onProgress(downloadedBytes / sizeBytes);
+        if (onProgress != null && knownSize) {
+          onProgress(downloadedBytes / contentLength);
         }
       }
     } catch (e) {
@@ -195,11 +202,16 @@ class ModelManager {
       if (await targetFile.exists()) {
         await targetFile.delete();
       }
+      client.close();
       rethrow;
     }
 
     await iosSink.close();
-    return _registerModel(filename, targetPath, downloadedBytes, isVisionOverride: isVision);
+    client.close();
+
+    // Use actual downloaded bytes as the authoritative size
+    final finalSize = knownSize ? contentLength : downloadedBytes;
+    return _registerModel(filename, targetPath, finalSize, isVisionOverride: isVision);
   }
 
   Future<void> _saveDatabase() async {
