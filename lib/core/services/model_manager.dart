@@ -169,12 +169,11 @@ class ModelManager {
     }
 
     final client = HttpClient()
-      ..connectionTimeout = const Duration(seconds: 45)
-      // Follow redirects automatically (HuggingFace → CDN 302)
+      ..connectionTimeout = const Duration(seconds: 45);
+
+    final request = await client.getUrl(Uri.parse(url))
       ..maxRedirects = 8
       ..followRedirects = true;
-
-    final request = await client.getUrl(Uri.parse(url));
     final response = await request.close();
 
     if (response.statusCode != 200) {

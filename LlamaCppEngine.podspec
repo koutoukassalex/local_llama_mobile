@@ -7,7 +7,7 @@ Pod::Spec.new do |s|
   s.license          = { :type => 'MIT' }
   s.author           = { 'koutoukassalex' => 'koutoukassalex@github.com' }
   s.source           = { :path => '.' }
-  s.platform         = :ios, '13.0'
+  s.platform         = :ios, '15.0'
   s.static_framework = true
 
   # Pre-compile the Metal shader into a .metallib at pod-install time.
