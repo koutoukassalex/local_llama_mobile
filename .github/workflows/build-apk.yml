@@ -9,18 +9,30 @@ on:
 
 jobs:
   build:
+    name: Build Android Release APK
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout Repository
+        uses: actions/checkout@v4
         with:
-          submodules: recursive
+          submodules: false
+
+      - name: Initialize submodules shallowly
+        run: |
+          git submodule sync --recursive
+          git submodule update --init --recursive --depth=1
+          echo "=== Submodule status ==="
+          ls -l android/app/src/main/cpp/llama_cpp/CMakeLists.txt || { echo "ERROR: Submodule missing"; exit 1; }
 
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
           distribution: 'zulu'
           java-version: '17'
+
+      - name: Accept Android SDK licenses
+        run: yes | sdkmanager --licenses || true
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
@@ -31,11 +43,12 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
-      - name: Build APK
-        run: flutter build apk --release
+      - name: Build Android APK
+        run: flutter build apk --release --verbose
 
-      - name: Upload APK
+      - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: release-apk
+          name: locallai-release-apk
           path: build/app/outputs/flutter-apk/app-release.apk
+          if-no-files-found: error

@@ -1,4 +1,4 @@
-name: Local AI Chatbot Build Pipeline
+name: Local AI Chatbot Build Pipeline (APK & IPA)
 
 on:
   push:
@@ -8,6 +8,50 @@ on:
   workflow_dispatch:
 
 jobs:
+  build-android:
+    name: Build Android APK
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          submodules: false
+
+      - name: Initialize submodules shallowly
+        run: |
+          git submodule sync --recursive
+          git submodule update --init --recursive --depth=1
+          echo "=== Submodule status ==="
+          ls -l android/app/src/main/cpp/llama_cpp/CMakeLists.txt || { echo "ERROR: Submodule missing"; exit 1; }
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+
+      - name: Accept Android SDK licenses
+        run: yes | sdkmanager --licenses || true
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Build Android Release APK
+        run: flutter build apk --release --verbose
+
+      - name: Upload Android APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: locallai-android-apk
+          path: build/app/outputs/flutter-apk/app-release.apk
+          if-no-files-found: error
+
   build-ios:
     name: Build iOS Native IPA
     runs-on: macos-latest
@@ -17,12 +61,12 @@ jobs:
         with:
           submodules: false
 
-      - name: Initialize submodules explicitly
+      - name: Initialize submodules shallowly
         run: |
           git submodule sync --recursive
           git submodule update --init --recursive --depth=1
           echo "=== Verifying llama_cpp submodule ==="
-          ls android/app/src/main/cpp/llama_cpp/CMakeLists.txt || { echo "FATAL: submodule empty"; exit 1; }
+          ls -l android/app/src/main/cpp/llama_cpp/CMakeLists.txt || { echo "FATAL: submodule empty"; exit 1; }
           echo "CPP file count: $(find android/app/src/main/cpp/llama_cpp -name '*.cpp' | wc -l)"
 
       - name: Set up Flutter SDK
@@ -44,12 +88,20 @@ jobs:
       - name: Compile Unsigned iOS IPA
         run: |
           flutter build ios --release --no-codesign
-          mkdir -p Payload
-          cp -r build/ios/iphoneos/Runner.app Payload/
-          zip -r local_llama_mobile.ipa Payload
+          if [ -d "build/ios/iphoneos/Runner.app" ]; then
+            mkdir -p Payload
+            cp -r build/ios/iphoneos/Runner.app Payload/
+            zip -r -q local_llama_mobile.ipa Payload
+            echo "Successfully packaged local_llama_mobile.ipa"
+          else
+            echo "ERROR: build/ios/iphoneos/Runner.app not found"
+            find build/ios -maxdepth 3
+            exit 1
+          fi
 
       - name: Upload iOS Build Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: local-llama-ios-ipa
+          name: locallai-ios-ipa
           path: local_llama_mobile.ipa
+          if-no-files-found: error
