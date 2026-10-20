@@ -125,7 +125,7 @@ class ModelManager extends ChangeNotifier {
     String safeFilename = rawFilename;
 
     // Avoid collision with existing models
-    safeFilename = _getUniqueFilename(safeFilename);
+    safeFilename = await _getUniqueFilename(safeFilename);
 
     final targetPath = p.join(_modelsDir.path, safeFilename);
     final targetFile = File(targetPath);
@@ -177,7 +177,7 @@ class ModelManager extends ChangeNotifier {
     }
 
     // Determine unique non-colliding filename for this download
-    final safeFilename = _getUniqueFilename(baseFilename);
+    final safeFilename = await _getUniqueFilename(baseFilename);
     final targetPath = p.join(_modelsDir.path, safeFilename);
     final targetFile = File(targetPath);
 
@@ -260,13 +260,13 @@ class ModelManager extends ChangeNotifier {
     return model;
   }
 
-  String _getUniqueFilename(String desiredFilename) {
+  Future<String> _getUniqueFilename(String desiredFilename) async {
     String testName = desiredFilename;
     final ext = p.extension(desiredFilename);
     final stem = p.basenameWithoutExtension(desiredFilename);
     int counter = 1;
 
-    while (File(p.join(_modelsDir.path, testName)).exists() &&
+    while ((await File(p.join(_modelsDir.path, testName)).exists()) &&
            _models.any((m) => p.basename(m.path) == testName)) {
       testName = "${stem}_$counter$ext";
       counter++;
