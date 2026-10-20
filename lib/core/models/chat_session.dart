@@ -26,4 +26,25 @@ class ChatSession {
       createdAt: createdAt ?? this.createdAt,
     );
   }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'title': title,
+      'messages': messages.map((m) => m.toJson()).toList(),
+      'createdAt': createdAt.toIso8601String(),
+    };
+  }
+
+  factory ChatSession.fromJson(Map<String, dynamic> json) {
+    return ChatSession(
+      id: json['id'] as String,
+      title: json['title'] as String? ?? 'Conversation',
+      messages: (json['messages'] as List<dynamic>? ?? [])
+          .map((m) => ChatMessage.fromJson(m as Map<String, dynamic>))
+          .toList(),
+      createdAt: DateTime.tryParse(json['createdAt'] as String? ?? '') ?? DateTime.now(),
+    );
+  }
 }
+
