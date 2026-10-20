@@ -4,6 +4,9 @@ enum ModelFamily {
   qwen,
   phi,
   tinyLlama,
+  deepseek,
+  smollm,
+  mistral,
   unknown
 }
 
@@ -41,6 +44,9 @@ class GgufModel {
 
   static ModelFamily detectFamily(String filename) {
     final lower = filename.toLowerCase();
+    if (lower.contains('deepseek')) return ModelFamily.deepseek;
+    if (lower.contains('smollm')) return ModelFamily.smollm;
+    if (lower.contains('mistral')) return ModelFamily.mistral;
     if (lower.contains('llama')) return ModelFamily.llama;
     if (lower.contains('gemma')) return ModelFamily.gemma;
     if (lower.contains('qwen')) return ModelFamily.qwen;
@@ -50,12 +56,14 @@ class GgufModel {
   }
 
   /// Builds appropriate system context and prompt templates depending on the model's family.
-  /// Handles distinct chat templates (e.g. ChatML for Qwen, custom for Gemma/Llama)
+  /// Handles distinct chat templates (e.g. ChatML for Qwen/DeepSeek/SmolLM, custom for Gemma/Llama)
   String applyTemplate(List<Map<String, String>> conversationHistory) {
     StringBuffer promptBuffer = StringBuffer();
     
     switch (family) {
+      case ModelFamily.deepseek:
       case ModelFamily.qwen:
+      case ModelFamily.smollm:
         // ChatML Template
         for (var msg in conversationHistory) {
           promptBuffer.write("<|im_start|>${msg['role']}\n${msg['content']}<|im_end|>\n");
@@ -87,6 +95,16 @@ class GgufModel {
           promptBuffer.write("<|${roleStr}|>\n${msg['content']}<|end|>\n");
         }
         promptBuffer.write("<|assistant|>\n");
+        break;
+
+      case ModelFamily.mistral:
+        for (var msg in conversationHistory) {
+          if (msg['role'] == 'user') {
+            promptBuffer.write("[INST] ${msg['content']} [/INST]");
+          } else {
+            promptBuffer.write(" ${msg['content']} ");
+          }
+        }
         break;
 
       default:

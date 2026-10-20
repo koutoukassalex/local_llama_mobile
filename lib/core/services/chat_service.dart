@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'dart:math' as math;
 import 'package:flutter/foundation.dart';
 import 'package:uuid/uuid.dart';
 import 'package:flutter_background/flutter_background.dart';
@@ -208,14 +209,45 @@ class ChatService extends ChangeNotifier {
     }
   }
 
-  /// Load a model from GgufModel representation
+  /// Load a model with auto-tuned context and hardware parameters
   Future<void> loadModel(GgufModel model) async {
     _activeModel = model;
+
+    // 1. Auto-tune context length based on model size and OS memory limits
+    int tunedCtx = _nCtx;
+    if (Platform.isIOS) {
+      // iOS has strict Jetsam memory thresholds (~2.5-3GB limit)
+      if (model.sizeInGB >= 4.0) {
+        tunedCtx = math.min(tunedCtx, 512);
+      } else if (model.sizeInGB >= 1.8) {
+        tunedCtx = math.min(tunedCtx, 1024);
+      }
+    } else {
+      // Android: if budget device, constrain context for larger models
+      final cores = Platform.numberOfProcessors;
+      if (cores <= 4 && model.sizeInGB >= 1.8) {
+        tunedCtx = math.min(tunedCtx, 1024);
+      }
+    }
+
+    // 2. Auto-tune threads to performance cores: leave headroom for Flutter UI thread!
+    final cores = Platform.numberOfProcessors;
+    int tunedThreads = _nThreads;
+    if (cores > 4) {
+      tunedThreads = math.min(4, cores - 2); // Dedicated cores for UI & OS
+    } else if (cores > 2) {
+      tunedThreads = cores - 1;
+    } else {
+      tunedThreads = 2;
+    }
+
+    debugPrint("[chat_service] Loading ${model.name}: nCtx=$tunedCtx, nThreads=$tunedThreads, nGpuLayers=$_nGpuLayers");
+
     _isolateManager.loadModel(
       model.path,
-      nCtx: _nCtx,
+      nCtx: tunedCtx,
       nGpuLayers: _nGpuLayers,
-      nThreads: _nThreads,
+      nThreads: tunedThreads,
     );
     notifyListeners();
   }
@@ -305,8 +337,10 @@ class ChatService extends ChangeNotifier {
       debugPrint("Could not activate background execution: $e");
     }
 
-    // 4. Stream response using customized parameters from sliders
+    // 4. Stream response with 35ms render throttling to ensure smooth 60fps UI
     StringBuffer aiBuffer = StringBuffer();
+    Timer? throttleTimer;
+    bool hasPendingUiUpdate = false;
     
     _isolateManager.generate(
       formattedPrompt,
@@ -317,6 +351,7 @@ class ChatService extends ChangeNotifier {
 
     _tokenSubscription = _isolateManager.tokenStream.listen((event) {
       if (event.error != null) {
+        throttleTimer?.cancel();
         _isGenerating = false;
         aiMessage = aiMessage.copyWith(text: "Inference Error: ${event.error}");
         _updateMessage(aiMessage);
@@ -324,17 +359,29 @@ class ChatService extends ChangeNotifier {
       }
 
       if (event.isFinished) {
+        throttleTimer?.cancel();
         _isGenerating = false;
         _tokenSubscription?.cancel();
         _tokenSubscription = null;
+        // Final flush of any remaining buffer
+        aiMessage = aiMessage.copyWith(text: aiBuffer.toString());
+        _updateMessage(aiMessage);
         notifyListeners();
         return;
       }
 
-      // Append token piece
+      // Append token piece to text buffer
       aiBuffer.write(event.token);
-      aiMessage = aiMessage.copyWith(text: aiBuffer.toString());
-      _updateMessage(aiMessage);
+      hasPendingUiUpdate = true;
+
+      // Throttle UI setState to ~30fps/35ms so fast 50+ t/s models don't drop frames
+      throttleTimer ??= Timer.periodic(const Duration(milliseconds: 35), (timer) {
+        if (hasPendingUiUpdate && _isGenerating) {
+          hasPendingUiUpdate = false;
+          aiMessage = aiMessage.copyWith(text: aiBuffer.toString());
+          _updateMessage(aiMessage);
+        }
+      });
     });
   }
 

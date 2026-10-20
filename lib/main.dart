@@ -14,6 +14,7 @@ import 'core/models/gguf_model.dart';
 import 'core/services/setup_screen.dart';
 import 'core/ui/settings_sheet.dart';
 import 'core/ui/huggingface_search_screen.dart';
+import 'core/ui/gguf_library_screen.dart';
 import 'package:path_provider/path_provider.dart';
 
 void main() {
@@ -904,6 +905,24 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
           ],
         ),
         actions: [
+          // GGUF Library Hub Button
+          IconButton(
+            icon: Icon(Icons.local_library_rounded, color: theme.secondaryAccent),
+            tooltip: "GGUF Model Library",
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => GgufLibraryScreen(
+                    onDownloadRequested: (url, filename, isVision) {
+                      _handleDownload(context, url, filename, isVision: isVision);
+                    },
+                    onImportRequested: () => _handleImport(context),
+                  ),
+                ),
+              );
+            },
+          ),
           // Settings Hub Button
           IconButton(
             icon: Icon(Icons.settings_suggest_rounded, color: theme.primaryAccent),
@@ -1095,20 +1114,48 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
             ),
             const SizedBox(height: 32),
             if (chatService.activeModel == null)
-              ElevatedButton.icon(
-                icon: const Icon(Icons.dashboard_customize_outlined),
-                label: const Text("Initialize Engine"),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: theme.primaryAccent,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                  elevation: 8,
-                  shadowColor: theme.primaryAccent.withOpacity(0.5),
-                ),
-                onPressed: () {
-                  _scaffoldKey.currentState?.openDrawer();
-                },
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  ElevatedButton.icon(
+                    icon: const Icon(Icons.local_library_rounded),
+                    label: const Text("GGUF Library"),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: theme.primaryAccent,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 14),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+                      elevation: 6,
+                    ),
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => GgufLibraryScreen(
+                            onDownloadRequested: (url, filename, isVision) {
+                              _handleDownload(context, url, filename, isVision: isVision);
+                            },
+                            onImportRequested: () => _handleImport(context),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                  const SizedBox(width: 12),
+                  OutlinedButton.icon(
+                    icon: const Icon(Icons.dashboard_customize_outlined),
+                    label: const Text("Vault"),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: theme.textPrimary,
+                      side: BorderSide(color: theme.primaryAccent.withOpacity(0.3)),
+                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+                    ),
+                    onPressed: () {
+                      _scaffoldKey.currentState?.openDrawer();
+                    },
+                  ),
+                ],
               ),
           ],
         ),
@@ -1744,12 +1791,37 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
             child: Column(
               children: [
                 ElevatedButton.icon(
+                  icon: const Icon(Icons.local_library_rounded),
+                  label: const Text("Open GGUF Model Library"),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: theme.primaryAccent,
+                    foregroundColor: Colors.white,
+                    minimumSize: const Size(double.infinity, 50),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                    elevation: 3,
+                  ),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => GgufLibraryScreen(
+                          onDownloadRequested: (url, filename, isVision) {
+                            _handleDownload(context, url, filename, isVision: isVision);
+                          },
+                          onImportRequested: () => _handleImport(context),
+                        ),
+                      ),
+                    );
+                  },
+                ),
+                const SizedBox(height: 10),
+                ElevatedButton.icon(
                   icon: const Icon(Icons.search_rounded),
                   label: const Text("Search Hugging Face"),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: theme.secondaryAccent.withOpacity(0.2),
                     foregroundColor: theme.secondaryAccent,
-                    minimumSize: const Size(double.infinity, 50),
+                    minimumSize: const Size(double.infinity, 46),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                     elevation: 0,
                   ),
@@ -1767,15 +1839,14 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                   },
                 ),
                 const SizedBox(height: 10),
-                ElevatedButton.icon(
+                OutlinedButton.icon(
                   icon: const Icon(Icons.add_circle_outline_rounded),
                   label: const Text("Import Custom GGUF"),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: theme.primaryAccent,
-                    foregroundColor: Colors.white,
-                    minimumSize: const Size(double.infinity, 50),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: theme.textPrimary,
+                    side: BorderSide(color: theme.primaryAccent.withOpacity(0.3)),
+                    minimumSize: const Size(double.infinity, 46),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                    elevation: 4,
                   ),
                   onPressed: _isImporting || _isDownloading ? null : () => _handleImport(context),
                 ),
