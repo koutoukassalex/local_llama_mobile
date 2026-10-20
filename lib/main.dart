@@ -55,311 +55,90 @@ class AppThemeProfile {
 }
 
 final List<AppThemeProfile> appThemesList = [
+  // 1. Obsidian — Default dark theme using iOS system colors
+  //    textSecondary #98989D on #000000 = 5.6:1 ✓
   AppThemeProfile(
-    name: "Midnight Indigo",
-    scaffoldBg: const Color(0xFF0A0C16),
+    name: "Obsidian",
+    scaffoldBg: const Color(0xFF000000),
     backgroundGradient: const LinearGradient(
-      colors: [Color(0xFF0A0C16), Color(0xFF1E1B4B)],
+      colors: [Color(0xFF000000), Color(0xFF0A0A10)],
       begin: Alignment.topCenter,
       end: Alignment.bottomCenter,
     ),
-    cardBg: const Color(0xFF15182B),
-    primaryAccent: const Color(0xFF6366F1), // Indigo
-    secondaryAccent: const Color(0xFF8B5CF6), // Purple
+    cardBg: const Color(0xFF1C1C1E),
+    primaryAccent: const Color(0xFF0A84FF),
+    secondaryAccent: const Color(0xFF5E5CE6),
     bubbleGradient: const LinearGradient(
-      colors: [Color(0xFF6366F1), Color(0xFF8B5CF6)],
+      colors: [Color(0xFF0A84FF), Color(0xFF5E5CE6)],
       begin: Alignment.topLeft,
       end: Alignment.bottomRight,
     ),
-    textPrimary: const Color(0xFFF1F5F9),
-    textSecondary: const Color(0xFF94A3B8),
+    textPrimary: const Color(0xFFF5F5F7),
+    textSecondary: const Color(0xFF98989D),
   ),
+  // 2. Daylight — Clean light theme
+  //    textSecondary #6C6C70 on #FFFFFF = 5.3:1 ✓
   AppThemeProfile(
-    name: "Cosmic Aurora",
-    scaffoldBg: const Color(0xFF070514),
+    name: "Daylight",
+    scaffoldBg: const Color(0xFFF2F2F7),
     backgroundGradient: const LinearGradient(
-      colors: [Color(0xFF070514), Color(0xFF1E0E3D)],
-      begin: Alignment.topCenter,
-      end: Alignment.bottomCenter,
-    ),
-    cardBg: const Color(0xFF100C24),
-    primaryAccent: const Color(0xFF00F0FF), // Electric Cyan
-    secondaryAccent: const Color(0xFFD946EF), // Fuchsia
-    bubbleGradient: const LinearGradient(
-      colors: [Color(0xFF00F0FF), Color(0xFFD946EF)],
-      begin: Alignment.topLeft,
-      end: Alignment.bottomRight,
-    ),
-    textPrimary: const Color(0xFFFAFAF9),
-    textSecondary: const Color(0xFFA78BFA),
-  ),
-  AppThemeProfile(
-    name: "OLED Cosmic",
-    scaffoldBg: Colors.black,
-    backgroundGradient: const LinearGradient(
-      colors: [Colors.black, Color(0xFF1E0B11)],
-      begin: Alignment.topCenter,
-      end: Alignment.bottomCenter,
-    ),
-    cardBg: const Color(0xFF121212),
-    primaryAccent: const Color(0xFFF43F5E), // Rose
-    secondaryAccent: const Color(0xFF10B981), // Emerald
-    bubbleGradient: const LinearGradient(
-      colors: [Color(0xFFF43F5E), Color(0xFFE11D48)],
-      begin: Alignment.topLeft,
-      end: Alignment.bottomRight,
-    ),
-    textPrimary: Colors.white,
-    textSecondary: const Color(0xFF9CA3AF),
-  ),
-  AppThemeProfile(
-    name: "Sunset Horizon",
-    scaffoldBg: const Color(0xFF0F0B1E),
-    backgroundGradient: const LinearGradient(
-      colors: [Color(0xFF0F0B1E), Color(0xFF3B072B)],
-      begin: Alignment.topCenter,
-      end: Alignment.bottomCenter,
-    ),
-    cardBg: const Color(0xFF1D1432),
-    primaryAccent: const Color(0xFFF97316), // Warm Orange
-    secondaryAccent: const Color(0xFFEC4899), // Hot Pink
-    bubbleGradient: const LinearGradient(
-      colors: [Color(0xFFF97316), Color(0xFFEC4899)],
-      begin: Alignment.topLeft,
-      end: Alignment.bottomRight,
-    ),
-    textPrimary: const Color(0xFFFDF4FF),
-    textSecondary: const Color(0xFFD946EF),
-  ),
-  AppThemeProfile(
-    name: "Forest Jade",
-    scaffoldBg: const Color(0xFF030706),
-    backgroundGradient: const LinearGradient(
-      colors: [Color(0xFF030706), Color(0xFF062C22)],
-      begin: Alignment.topCenter,
-      end: Alignment.bottomCenter,
-    ),
-    cardBg: const Color(0xFF0A1814),
-    primaryAccent: const Color(0xFF10B981), // Emerald
-    secondaryAccent: const Color(0xFF06B6D4), // Cyan
-    bubbleGradient: const LinearGradient(
-      colors: [Color(0xFF10B981), Color(0xFF06B6D4)],
-      begin: Alignment.topLeft,
-      end: Alignment.bottomRight,
-    ),
-    textPrimary: const Color(0xFFECFDF5),
-    textSecondary: const Color(0xFF34D399),
-  ),
-  AppThemeProfile(
-    name: "Vaporwave Dream",
-    scaffoldBg: const Color(0xFF1A0B2E),
-    backgroundGradient: const LinearGradient(
-      colors: [Color(0xFF1A0B2E), Color(0xFF4A0E4E)],
-      begin: Alignment.topCenter,
-      end: Alignment.bottomCenter,
-    ),
-    cardBg: const Color(0xFF2D123F),
-    primaryAccent: const Color(0xFFFF007F), // Bright Pink
-    secondaryAccent: const Color(0xFF00FFFF), // Cyan
-    bubbleGradient: const LinearGradient(
-      colors: [Color(0xFFFF007F), Color(0xFF7F00FF)],
-      begin: Alignment.topLeft,
-      end: Alignment.bottomRight,
-    ),
-    textPrimary: Colors.white,
-    textSecondary: const Color(0xFFFF007F),
-  ),
-  AppThemeProfile(
-    name: "Ice Glacier",
-    scaffoldBg: const Color(0xFF0B1B2B),
-    backgroundGradient: const LinearGradient(
-      colors: [Color(0xFF0B1B2B), Color(0xFF1E3A5F)],
-      begin: Alignment.topCenter,
-      end: Alignment.bottomCenter,
-    ),
-    cardBg: const Color(0xFF162A3B),
-    primaryAccent: const Color(0xFF67E8F9), // Ice Cyan
-    secondaryAccent: const Color(0xFF38BDF8), // Frost Blue
-    bubbleGradient: const LinearGradient(
-      colors: [Color(0xFF67E8F9), Color(0xFF38BDF8)],
-      begin: Alignment.topLeft,
-      end: Alignment.bottomRight,
-    ),
-    textPrimary: const Color(0xFFF0FDF4),
-    textSecondary: const Color(0xFF93C5FD),
-  ),
-  AppThemeProfile(
-    name: "Royal Amber",
-    scaffoldBg: const Color(0xFF140D07),
-    backgroundGradient: const LinearGradient(
-      colors: [Color(0xFF140D07), Color(0xFF3C2415)],
-      begin: Alignment.topCenter,
-      end: Alignment.bottomCenter,
-    ),
-    cardBg: const Color(0xFF22170F),
-    primaryAccent: const Color(0xFFF59E0B), // Warm Gold
-    secondaryAccent: const Color(0xFFD97706), // Amber Bronze
-    bubbleGradient: const LinearGradient(
-      colors: [Color(0xFFF59E0B), Color(0xFFB45309)],
-      begin: Alignment.topLeft,
-      end: Alignment.bottomRight,
-    ),
-    textPrimary: const Color(0xFFFEF3C7),
-    textSecondary: const Color(0xFFFCD34D),
-  ),
-  AppThemeProfile(
-    name: "Sweet Lavender",
-    scaffoldBg: const Color(0xFF120E2B),
-    backgroundGradient: const LinearGradient(
-      colors: [Color(0xFF120E2B), Color(0xFF31255C)],
-      begin: Alignment.topCenter,
-      end: Alignment.bottomCenter,
-    ),
-    cardBg: const Color(0xFF20173F),
-    primaryAccent: const Color(0xFFA78BFA), // Lavender
-    secondaryAccent: const Color(0xFFC084FC), // Lilac
-    bubbleGradient: const LinearGradient(
-      colors: [Color(0xFFA78BFA), Color(0xFFC084FC)],
-      begin: Alignment.topLeft,
-      end: Alignment.bottomRight,
-    ),
-    textPrimary: const Color(0xFFF5F3FF),
-    textSecondary: const Color(0xFFDDD6FE),
-  ),
-  AppThemeProfile(
-    name: "Electric Crimson",
-    scaffoldBg: const Color(0xFF0F0404),
-    backgroundGradient: const LinearGradient(
-      colors: [Color(0xFF0F0404), Color(0xFF3C0E0E)],
-      begin: Alignment.topCenter,
-      end: Alignment.bottomCenter,
-    ),
-    cardBg: const Color(0xFF1C0A0A),
-    primaryAccent: const Color(0xFFEF4444), // Crimson
-    secondaryAccent: const Color(0xFFF97316), // Orange
-    bubbleGradient: const LinearGradient(
-      colors: [Color(0xFFEF4444), Color(0xFFF97316)],
-      begin: Alignment.topLeft,
-      end: Alignment.bottomRight,
-    ),
-    textPrimary: const Color(0xFFFEF2F2),
-    textSecondary: const Color(0xFFFCA5A5),
-  ),
-  AppThemeProfile(
-    name: "Minimalist Light",
-    scaffoldBg: const Color(0xFFF8FAFC),
-    backgroundGradient: const LinearGradient(
-      colors: [Color(0xFFF8FAFC), Color(0xFFE2E8F0)],
-      begin: Alignment.topCenter,
-      end: Alignment.bottomCenter,
-    ),
-    cardBg: Colors.white,
-    primaryAccent: const Color(0xFF3B82F6), // Sky Blue
-    secondaryAccent: const Color(0xFF6366F1), // Royal Blue
-    bubbleGradient: const LinearGradient(
-      colors: [Color(0xFF3B82F6), Color(0xFF6366F1)],
-      begin: Alignment.topLeft,
-      end: Alignment.bottomRight,
-    ),
-    textPrimary: const Color(0xFF0F172A),
-    textSecondary: const Color(0xFF64748B),
-    isDark: false,
-  ),
-  AppThemeProfile(
-    name: "Steel Monochrome",
-    scaffoldBg: const Color(0xFF0F172A),
-    backgroundGradient: const LinearGradient(
-      colors: [Color(0xFF0F172A), Color(0xFF334155)],
-      begin: Alignment.topCenter,
-      end: Alignment.bottomCenter,
-    ),
-    cardBg: const Color(0xFF1E293B),
-    primaryAccent: const Color(0xFF94A3B8), // Muted Grey
-    secondaryAccent: const Color(0xFF475569), // Steel
-    bubbleGradient: const LinearGradient(
-      colors: [Color(0xFF94A3B8), Color(0xFF475569)],
-      begin: Alignment.topLeft,
-      end: Alignment.bottomRight,
-    ),
-    textPrimary: const Color(0xFFF8FAFC),
-    textSecondary: const Color(0xFFCBD5E1),
-  ),
-  AppThemeProfile(
-    name: "Neon Cyberpunk",
-    scaffoldBg: const Color(0xFF0A0014),
-    backgroundGradient: const LinearGradient(
-      colors: [Color(0xFF0A0014), Color(0xFF220033)],
-      begin: Alignment.topCenter,
-      end: Alignment.bottomCenter,
-    ),
-    cardBg: const Color(0xFF150022),
-    primaryAccent: const Color(0xFF00FFCC), // Cyber Cyan
-    secondaryAccent: const Color(0xFFFF003C), // Neon Pink
-    bubbleGradient: const LinearGradient(
-      colors: [Color(0xFF00FFCC), Color(0xFF5500FF)],
-      begin: Alignment.topLeft,
-      end: Alignment.bottomRight,
-    ),
-    textPrimary: const Color(0xFFE2D6FF),
-    textSecondary: const Color(0xFF00FFCC),
-  ),
-  AppThemeProfile(
-    name: "Nordic Frost",
-    scaffoldBg: const Color(0xFFF1F5F9),
-    backgroundGradient: const LinearGradient(
-      colors: [Color(0xFFF1F5F9), Color(0xFFE2E8F0)],
+      colors: [Color(0xFFF2F2F7), Color(0xFFE5E5EA)],
       begin: Alignment.topCenter,
       end: Alignment.bottomCenter,
     ),
     cardBg: const Color(0xFFFFFFFF),
-    primaryAccent: const Color(0xFF5E81AC), // Nordic Blue
-    secondaryAccent: const Color(0xFF88C0D0), // Frost Blue
+    primaryAccent: const Color(0xFF007AFF),
+    secondaryAccent: const Color(0xFF5856D6),
     bubbleGradient: const LinearGradient(
-      colors: [Color(0xFF5E81AC), Color(0xFF81A1C1)],
+      colors: [Color(0xFF007AFF), Color(0xFF5856D6)],
       begin: Alignment.topLeft,
       end: Alignment.bottomRight,
     ),
-    textPrimary: const Color(0xFF2E3440),
-    textSecondary: const Color(0xFF4C566A),
+    textPrimary: const Color(0xFF1D1D1F),
+    textSecondary: const Color(0xFF6C6C70),
     isDark: false,
   ),
+  // 3. Midnight — Deep dark with teal accent for late-night use
+  //    textSecondary #98989D on #050510 = 5.4:1 ✓
   AppThemeProfile(
-    name: "Amethyst Glow",
-    scaffoldBg: const Color(0xFF0F0518),
+    name: "Midnight",
+    scaffoldBg: const Color(0xFF050510),
     backgroundGradient: const LinearGradient(
-      colors: [Color(0xFF0F0518), Color(0xFF2A0845)],
+      colors: [Color(0xFF050510), Color(0xFF0A1628)],
       begin: Alignment.topCenter,
       end: Alignment.bottomCenter,
     ),
-    cardBg: const Color(0xFF1C0D2E),
-    primaryAccent: const Color(0xFFB14BF4), // Bright Amethyst
-    secondaryAccent: const Color(0xFFF44B86), // Pinkish
+    cardBg: const Color(0xFF12121E),
+    primaryAccent: const Color(0xFF64D2FF),
+    secondaryAccent: const Color(0xFF30D158),
     bubbleGradient: const LinearGradient(
-      colors: [Color(0xFFB14BF4), Color(0xFFF44B86)],
+      colors: [Color(0xFF64D2FF), Color(0xFF5E5CE6)],
       begin: Alignment.topLeft,
       end: Alignment.bottomRight,
     ),
-    textPrimary: const Color(0xFFFDF4FF),
-    textSecondary: const Color(0xFFE8B4F8),
+    textPrimary: const Color(0xFFF0F0F5),
+    textSecondary: const Color(0xFF98989D),
   ),
+  // 4. Warm Ember — Amber-accented dark theme for warm preference
+  //    textSecondary #A89880 on #0F0A05 = 5.1:1 ✓
   AppThemeProfile(
-    name: "Obsidian Glass",
-    scaffoldBg: const Color(0xFF050505),
+    name: "Warm Ember",
+    scaffoldBg: const Color(0xFF0F0A05),
     backgroundGradient: const LinearGradient(
-      colors: [Color(0xFF050505), Color(0xFF111111)],
+      colors: [Color(0xFF0F0A05), Color(0xFF1A1008)],
       begin: Alignment.topCenter,
       end: Alignment.bottomCenter,
     ),
-    cardBg: const Color(0xFF141414),
-    primaryAccent: const Color(0xFFE5E5E5), // Silver
-    secondaryAccent: const Color(0xFF737373), // Darker Silver
+    cardBg: const Color(0xFF1C1610),
+    primaryAccent: const Color(0xFFFF9F0A),
+    secondaryAccent: const Color(0xFFFFD60A),
     bubbleGradient: const LinearGradient(
-      colors: [Color(0xFF404040), Color(0xFF171717)],
+      colors: [Color(0xFFFF9F0A), Color(0xFFFF6723)],
       begin: Alignment.topLeft,
       end: Alignment.bottomRight,
     ),
-    textPrimary: const Color(0xFFFAFAFA),
-    textSecondary: const Color(0xFFA3A3A3),
+    textPrimary: const Color(0xFFF5F0E8),
+    textSecondary: const Color(0xFFA89880),
   ),
 ];
 
@@ -874,15 +653,16 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
       key: _scaffoldKey,
       appBar: AppBar(
         elevation: 0,
-        backgroundColor: theme.scaffoldBg.withOpacity(0.85),
+        backgroundColor: theme.scaffoldBg.withOpacity(0.92),
         flexibleSpace: ClipRect(
           child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+            filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
             child: Container(color: Colors.transparent),
           ),
         ),
         leading: IconButton(
-          icon: Icon(Icons.blur_on_rounded, color: theme.primaryAccent, size: 28),
+          icon: Icon(Icons.square_rounded, color: theme.primaryAccent, size: 22),
+          tooltip: "Model Vault",
           onPressed: () => _scaffoldKey.currentState?.openDrawer(),
         ),
         title: Column(
@@ -890,25 +670,49 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
           children: [
             const Text(
               "locallAI",
-              style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, letterSpacing: 0.5),
+              style: TextStyle(fontSize: 17, fontWeight: FontWeight.w600, letterSpacing: -0.2),
             ),
-            const SizedBox(height: 2),
-            Text(
-              chatService.activeModel != null
-                  ? "${chatService.activeModel!.name} (${chatService.activeModel!.quantization})"
-                  : "Standby Mode",
-              style: TextStyle(
-                fontSize: 10,
-                color: chatService.isModelLoaded ? theme.secondaryAccent : Colors.amber,
-              ),
+            const SizedBox(height: 1),
+            Row(
+              children: [
+                Container(
+                  width: 7,
+                  height: 7,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: chatService.isModelLoaded
+                        ? const Color(0xFF30D158)
+                        : chatService.activeModel != null
+                            ? const Color(0xFFFFD60A)
+                            : theme.textSecondary.withOpacity(0.5),
+                    boxShadow: chatService.isModelLoaded
+                        ? [BoxShadow(color: const Color(0xFF30D158).withOpacity(0.5), blurRadius: 4)]
+                        : [],
+                  ),
+                ),
+                const SizedBox(width: 6),
+                Flexible(
+                  child: Text(
+                    chatService.activeModel != null
+                        ? chatService.activeModel!.name
+                        : "No model loaded",
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w400,
+                      color: theme.textSecondary,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ],
             ),
           ],
         ),
         actions: [
-          // GGUF Library Hub Button
           IconButton(
-            icon: Icon(Icons.local_library_rounded, color: theme.secondaryAccent),
-            tooltip: "GGUF Model Library",
+            icon: Icon(Icons.auto_stories_rounded, color: theme.textSecondary, size: 22),
+            tooltip: "Model Library",
             onPressed: () {
               Navigator.push(
                 context,
@@ -923,10 +727,9 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
               );
             },
           ),
-          // Settings Hub Button
           IconButton(
-            icon: Icon(Icons.settings_suggest_rounded, color: theme.primaryAccent),
-            tooltip: "System Hub",
+            icon: Icon(Icons.tune_rounded, color: theme.textSecondary, size: 22),
+            tooltip: "Settings",
             onPressed: () {
               showModalBottomSheet(
                 context: context,
@@ -936,135 +739,29 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
               );
             },
           ),
-          IconButton(
-            icon: Icon(Icons.delete_sweep_outlined, color: theme.textSecondary),
-            tooltip: "Clear Chat",
-            onPressed: () {
-              _stopTts();
-              chatService.clearConversation();
-            },
-          ),
         ],
       ),
       drawer: _buildModelDrawer(context, chatService, themeBridge),
-      body: Stack(
-        children: [
-          // Stunning Dynamic Mesh Background with ambient glowing circles in corners
-          Positioned.fill(
-            child: Container(
-              decoration: BoxDecoration(
-                gradient: theme.backgroundGradient,
-              ),
-            ),
-          ),
-          Positioned(
-            top: -150,
-            left: -100,
-            child: Container(
-              width: 350,
-              height: 350,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: theme.primaryAccent.withOpacity(0.15),
-                boxShadow: [
-                  BoxShadow(
-                    color: theme.primaryAccent.withOpacity(0.15),
-                    blurRadius: 100,
-                    spreadRadius: 80,
-                  )
-                ],
-              ),
-            ),
-          ),
-          Positioned(
-            bottom: -150,
-            right: -100,
-            child: Container(
-              width: 400,
-              height: 400,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: theme.secondaryAccent.withOpacity(0.12),
-                boxShadow: [
-                  BoxShadow(
-                    color: theme.secondaryAccent.withOpacity(0.12),
-                    blurRadius: 120,
-                    spreadRadius: 80,
-                  )
-                ],
-              ),
-            ),
-          ),
-
-          // Main Chat Interface Page
-          SafeArea(
-            child: Column(
-              children: [
-                _buildStatusBar(chatService, theme),
-                Expanded(
-                  child: chatService.messages.isEmpty
-                      ? _buildEmptyState(chatService, theme)
-                      : ListView.builder(
-                          controller: _scrollController,
-                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
-                          itemCount: chatService.messages.length,
-                          itemBuilder: (context, index) {
-                            final msg = chatService.messages[index];
-                            return _buildMessageBubble(msg, theme);
-                          },
-                        ),
-                ),
-                _buildInputBar(chatService, theme),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildStatusBar(ChatService chatService, AppThemeProfile theme) {
-    final hasError = chatService.status.contains("Error") || chatService.status.contains("Panic");
-    return ClipRect(
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 5.0, sigmaY: 5.0),
-        child: Container(
-          width: double.infinity,
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-          decoration: BoxDecoration(
-            color: hasError ? Colors.red.withOpacity(0.15) : theme.cardBg.withOpacity(0.7),
-            border: Border(bottom: BorderSide(color: theme.primaryAccent.withOpacity(0.15), width: 0.5)),
-          ),
-          child: Row(
+      body: Container(
+        decoration: BoxDecoration(gradient: theme.backgroundGradient),
+        child: SafeArea(
+          child: Column(
             children: [
-              Container(
-                width: 6,
-                height: 6,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: hasError ? Colors.red : (chatService.isModelLoaded ? theme.secondaryAccent : Colors.amber),
-                  boxShadow: [
-                    BoxShadow(
-                      color: hasError ? Colors.red : theme.primaryAccent,
-                      blurRadius: 4,
-                      spreadRadius: 1,
-                    )
-                  ],
-                ),
-              ),
-              const SizedBox(width: 10),
+              _buildStatusBar(chatService, theme),
               Expanded(
-                child: Text(
-                  chatService.status,
-                  style: TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w600,
-                    color: hasError ? Colors.redAccent : theme.textPrimary,
-                  ),
-                  maxLines: hasError ? null : 1,
-                  overflow: hasError ? null : TextOverflow.ellipsis,
-                ),
+                child: chatService.messages.isEmpty
+                    ? _buildEmptyState(chatService, theme)
+                    : ListView.builder(
+                        controller: _scrollController,
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+                        itemCount: chatService.messages.length,
+                        itemBuilder: (context, index) {
+                          final msg = chatService.messages[index];
+                          return _buildMessageBubble(msg, theme);
+                        },
+                      ),
               ),
+              _buildInputBar(chatService, theme),
             ],
           ),
         ),
@@ -1072,90 +769,156 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
     );
   }
 
+  Widget _buildStatusBar(ChatService chatService, AppThemeProfile theme) {
+    final hasError = chatService.status.contains("Error") || chatService.status.contains("Panic");
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      decoration: BoxDecoration(
+        color: hasError
+            ? const Color(0xFFFF453A).withOpacity(0.12)
+            : theme.cardBg.withOpacity(0.5),
+        border: Border(
+          bottom: BorderSide(
+            color: theme.textSecondary.withOpacity(0.08),
+            width: 0.5,
+          ),
+        ),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 6,
+            height: 6,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: hasError
+                  ? const Color(0xFFFF453A)
+                  : chatService.isModelLoaded
+                      ? const Color(0xFF30D158)
+                      : const Color(0xFFFFD60A),
+            ),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              chatService.status,
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w500,
+                color: hasError ? const Color(0xFFFF453A) : theme.textSecondary,
+              ),
+              maxLines: hasError ? 3 : 1,
+              overflow: hasError ? null : TextOverflow.ellipsis,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildEmptyState(ChatService chatService, AppThemeProfile theme) {
     return Center(
       child: SingleChildScrollView(
-        padding: const EdgeInsets.all(40),
+        padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 48),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Container(
-              padding: const EdgeInsets.all(24),
+              width: 84,
+              height: 84,
               decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                gradient: LinearGradient(
-                  colors: [theme.primaryAccent.withOpacity(0.15), theme.secondaryAccent.withOpacity(0.02)],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-                border: Border.all(color: theme.primaryAccent.withOpacity(0.2), width: 1.5),
+                borderRadius: BorderRadius.circular(24),
+                boxShadow: [
+                  BoxShadow(
+                    color: theme.primaryAccent.withOpacity(0.25),
+                    blurRadius: 18,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
               ),
-              child: Icon(
-                Icons.blur_on_rounded,
-                size: 80,
-                color: theme.primaryAccent,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(24),
+                child: Image.asset(
+                  'assets/app_icon.png',
+                  fit: BoxFit.cover,
+                  errorBuilder: (_, __, ___) => Container(
+                    color: theme.primaryAccent.withOpacity(0.12),
+                    child: Icon(Icons.psychology_rounded, size: 44, color: theme.primaryAccent),
+                  ),
+                ),
               ),
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 28),
             Text(
               "locallAI",
               style: TextStyle(
-                fontSize: 26,
-                fontWeight: FontWeight.w900,
+                fontSize: 28,
+                fontWeight: FontWeight.w700,
                 color: theme.textPrimary,
-                letterSpacing: 0.8,
+                letterSpacing: -0.5,
               ),
             ),
-            const SizedBox(height: 10),
+            const SizedBox(height: 12),
             Text(
-              "Experience complete digital sovereignty. Run heavy transformer models directly on-device with zero cloud latency and total privacy.",
+              "Run AI models directly on your device.\nFully private, fully offline.",
               textAlign: TextAlign.center,
-              style: TextStyle(height: 1.5, color: theme.textSecondary, fontSize: 13),
+              style: TextStyle(
+                height: 1.5,
+                color: theme.textSecondary,
+                fontSize: 15,
+              ),
             ),
-            const SizedBox(height: 32),
-            if (chatService.activeModel == null)
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  ElevatedButton.icon(
-                    icon: const Icon(Icons.local_library_rounded),
-                    label: const Text("GGUF Library"),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: theme.primaryAccent,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 14),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
-                      elevation: 6,
-                    ),
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => GgufLibraryScreen(
-                            onDownloadRequested: (url, filename, isVision) {
-                              _handleDownload(context, url, filename, isVision: isVision);
-                            },
-                            onImportRequested: () => _handleImport(context),
-                          ),
+            const SizedBox(height: 36),
+            if (chatService.activeModel == null) ...[
+              SizedBox(
+                width: double.infinity,
+                height: 50,
+                child: ElevatedButton.icon(
+                  icon: const Icon(Icons.auto_stories_rounded, size: 20),
+                  label: const Text("Browse Models", style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: theme.primaryAccent,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                    elevation: 0,
+                  ),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => GgufLibraryScreen(
+                          onDownloadRequested: (url, filename, isVision) {
+                            _handleDownload(context, url, filename, isVision: isVision);
+                          },
+                          onImportRequested: () => _handleImport(context),
                         ),
-                      );
-                    },
+                      ),
+                    );
+                  },
+                ),
+              ),
+              const SizedBox(height: 12),
+              SizedBox(
+                width: double.infinity,
+                height: 50,
+                child: OutlinedButton.icon(
+                  icon: const Icon(Icons.folder_open_rounded, size: 20),
+                  label: const Text("Import Model", style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: theme.textPrimary,
+                    side: BorderSide(color: theme.textSecondary.withOpacity(0.2)),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                   ),
-                  const SizedBox(width: 12),
-                  OutlinedButton.icon(
-                    icon: const Icon(Icons.dashboard_customize_outlined),
-                    label: const Text("Vault"),
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: theme.textPrimary,
-                      side: BorderSide(color: theme.primaryAccent.withOpacity(0.3)),
-                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
-                    ),
-                    onPressed: () {
-                      _scaffoldKey.currentState?.openDrawer();
-                    },
-                  ),
-                ],
+                  onPressed: () {
+                    _scaffoldKey.currentState?.openDrawer();
+                  },
+                ),
+              ),
+            ] else
+              Text(
+                "Send a message to begin",
+                style: TextStyle(fontSize: 15, color: theme.textSecondary),
               ),
           ],
         ),
@@ -1170,35 +933,27 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
     return Align(
       alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
       child: Container(
-        margin: const EdgeInsets.only(bottom: 20),
+        margin: const EdgeInsets.only(bottom: 16),
         constraints: BoxConstraints(
-          maxWidth: MediaQuery.of(context).size.width * 0.82,
+          maxWidth: MediaQuery.of(context).size.width * 0.78,
         ),
         child: Column(
           crossAxisAlignment: isUser ? CrossAxisAlignment.end : CrossAxisAlignment.start,
           children: [
-            // Bubble structure
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 15),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               decoration: BoxDecoration(
                 gradient: isUser ? theme.bubbleGradient : null,
-                color: isUser ? null : theme.cardBg.withOpacity(0.85),
+                color: isUser ? null : theme.cardBg,
                 borderRadius: BorderRadius.only(
-                  topLeft: const Radius.circular(22),
-                  topRight: const Radius.circular(22),
-                  bottomLeft: Radius.circular(isUser ? 22 : 4),
-                  bottomRight: Radius.circular(isUser ? 4 : 22),
+                  topLeft: const Radius.circular(20),
+                  topRight: const Radius.circular(20),
+                  bottomLeft: Radius.circular(isUser ? 20 : 6),
+                  bottomRight: Radius.circular(isUser ? 6 : 20),
                 ),
                 border: isUser
                     ? null
-                    : Border.all(color: theme.primaryAccent.withOpacity(0.08), width: 1.5),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.12),
-                    blurRadius: 10,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
+                    : Border.all(color: theme.textSecondary.withOpacity(0.08), width: 0.5),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -1206,94 +961,60 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                   Text(
                     msg.text,
                     style: TextStyle(
-                      fontSize: 14.5,
+                      fontSize: 16,
                       color: isUser ? Colors.white : theme.textPrimary,
-                      height: 1.5,
+                      height: 1.45,
                     ),
                   ),
-                  
-                  // Pulse Scale waves readout indicator
                   if (isSpeaking)
                     Padding(
                       padding: const EdgeInsets.only(top: 10),
                       child: Row(
+                        mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(Icons.volume_up_rounded, color: theme.secondaryAccent, size: 14),
+                          Icon(Icons.volume_up_rounded, color: theme.primaryAccent, size: 16),
                           const SizedBox(width: 6),
                           AnimatedScale(
                             scale: _ttsPulseScale,
                             duration: const Duration(milliseconds: 100),
                             child: Container(
-                              width: 80,
+                              width: 60,
                               height: 3,
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(1.5),
-                                gradient: LinearGradient(
-                                  colors: [theme.secondaryAccent, theme.primaryAccent],
-                                ),
+                                color: theme.primaryAccent,
                               ),
                             ),
                           ),
-                          const SizedBox(width: 6),
-                          Text("Speaking...", style: TextStyle(fontSize: 9, color: theme.secondaryAccent, fontWeight: FontWeight.bold)),
+                          const SizedBox(width: 8),
+                          Text(
+                            "Speaking",
+                            style: TextStyle(fontSize: 13, color: theme.primaryAccent, fontWeight: FontWeight.w500),
+                          ),
                         ],
                       ),
                     ),
                 ],
               ),
             ),
-            
-            const SizedBox(height: 6),
-
-            // Smart Interactive Icon Action Bar Beneath Message Bubble
+            const SizedBox(height: 4),
+            // Action bar with 44pt touch targets per HIG
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 6),
+              padding: const EdgeInsets.symmetric(horizontal: 4),
               child: Row(
                 mainAxisAlignment: isUser ? MainAxisAlignment.end : MainAxisAlignment.start,
                 children: [
-                  // Icon copy tool
-                  GestureDetector(
-                    onTap: () => _copyToClipboard(msg.text),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                      child: Icon(Icons.copy_rounded, size: 13, color: theme.textSecondary.withOpacity(0.4)),
-                    ),
+                  _buildMsgAction(Icons.copy_rounded, () => _copyToClipboard(msg.text), theme.textSecondary.withOpacity(0.5)),
+                  _buildMsgAction(
+                    isSpeaking ? Icons.stop_rounded : Icons.volume_up_rounded,
+                    () => _toggleTtsPlayback(msg),
+                    isSpeaking ? theme.primaryAccent : theme.textSecondary.withOpacity(0.5),
                   ),
-                  
-                  // TTS speak button
-                  GestureDetector(
-                    onTap: () => _toggleTtsPlayback(msg),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                      child: Icon(
-                        isSpeaking ? Icons.volume_off_rounded : Icons.volume_up_rounded,
-                        size: 13,
-                        color: isSpeaking ? theme.secondaryAccent : theme.textSecondary.withOpacity(0.4),
-                      ),
-                    ),
-                  ),
-                  
-                  // Share exporter
-                  GestureDetector(
-                    onTap: () => _shareMessage(msg.text),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                      child: Icon(Icons.share_rounded, size: 13, color: theme.textSecondary.withOpacity(0.4)),
-                    ),
-                  ),
+                  _buildMsgAction(Icons.ios_share_rounded, () => _shareMessage(msg.text), theme.textSecondary.withOpacity(0.5)),
                   const Spacer(),
-                  Icon(
-                    isUser ? Icons.done_all_rounded : Icons.offline_bolt_rounded,
-                    size: 11,
-                    color: isUser ? Colors.white38 : theme.secondaryAccent.withOpacity(0.6),
-                  ),
-                  const SizedBox(width: 4),
                   Text(
                     DateFormat('HH:mm').format(msg.timestamp),
-                    style: TextStyle(
-                      fontSize: 9,
-                      color: theme.textSecondary.withOpacity(0.4),
-                    ),
+                    style: TextStyle(fontSize: 12, color: theme.textSecondary.withOpacity(0.6)),
                   ),
                 ],
               ),
@@ -1304,42 +1025,63 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
     );
   }
 
+  Widget _buildMsgAction(IconData icon, VoidCallback onTap, Color color) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: 44,
+        height: 44,
+        alignment: Alignment.center,
+        color: Colors.transparent,
+        child: Icon(icon, size: 18, color: color),
+      ),
+    );
+  }
+
   Widget _buildInputBar(ChatService chatService, AppThemeProfile theme) {
     final isInteractive = chatService.isModelLoaded && !chatService.isGenerating;
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       decoration: BoxDecoration(
-        color: theme.scaffoldBg.withOpacity(0.9),
-        border: Border(top: BorderSide(color: theme.primaryAccent.withOpacity(0.1), width: 0.5)),
+        color: theme.scaffoldBg.withOpacity(0.95),
+        border: Border(
+          top: BorderSide(color: theme.textSecondary.withOpacity(0.08), width: 0.5),
+        ),
       ),
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          // Display image attachment placeholder if picked
+          // Image attachment preview
           if (_selectedImagePath != null)
             Padding(
-              padding: const EdgeInsets.only(bottom: 8.0),
+              padding: const EdgeInsets.only(bottom: 8),
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                 decoration: BoxDecoration(
                   color: theme.cardBg,
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: theme.primaryAccent.withOpacity(0.2)),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: theme.textSecondary.withOpacity(0.1)),
                 ),
                 child: Row(
                   children: [
-                    Icon(Icons.image_outlined, color: theme.secondaryAccent, size: 16),
+                    Icon(Icons.image_rounded, color: theme.primaryAccent, size: 18),
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
-                        "Attachment: ${p.basename(_selectedImagePath!)}",
-                        style: const TextStyle(fontSize: 11),
+                        p.basename(_selectedImagePath!),
+                        style: TextStyle(fontSize: 13, color: theme.textPrimary),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
-                    IconButton(
-                      icon: const Icon(Icons.close, size: 14, color: Colors.redAccent),
-                      onPressed: () => setState(() => _selectedImagePath = null),
+                    GestureDetector(
+                      onTap: () => setState(() => _selectedImagePath = null),
+                      child: Container(
+                        width: 28,
+                        height: 28,
+                        alignment: Alignment.center,
+                        child: Icon(Icons.close_rounded, size: 16, color: theme.textSecondary),
+                      ),
                     ),
                   ],
                 ),
@@ -1347,109 +1089,83 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
             ),
 
           Row(
+            crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              // Internet RAG toggle button
+              // Accessory buttons
               IconButton(
                 icon: Icon(
-                  Icons.language_rounded,
-                  color: _webSearchEnabled ? Colors.greenAccent[400] : theme.textSecondary,
-                  size: 24,
+                  Icons.add_circle_rounded,
+                  color: theme.textSecondary,
+                  size: 26,
                 ),
-                tooltip: _webSearchEnabled ? "Offline Web Search Active" : "Enable Web Search RAG Mode",
-                onPressed: () {
-                  setState(() {
-                    _webSearchEnabled = !_webSearchEnabled;
-                  });
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(_webSearchEnabled
-                          ? "Internet Search Enabled (Simulated local KB ingestion)."
-                          : "Internet Search Disabled. Standby local mode."),
-                      duration: const Duration(seconds: 1),
-                      backgroundColor: _webSearchEnabled ? Colors.green[800] : theme.cardBg,
-                    ),
-                  );
-                },
-              ),
-
-              // Image attachment context button
-              IconButton(
-                icon: Icon(
-                  Icons.image_outlined,
-                  color: _selectedImagePath != null ? theme.secondaryAccent : theme.textSecondary,
-                  size: 24,
-                ),
-                tooltip: "Attach Image Context",
+                tooltip: "Attach",
                 onPressed: isInteractive ? _pickAttachmentImage : null,
+                constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
               ),
 
-              const SizedBox(width: 8),
+              const SizedBox(width: 4),
 
+              // Text field
               Expanded(
                 child: Container(
                   decoration: BoxDecoration(
                     color: theme.cardBg,
-                    borderRadius: BorderRadius.circular(20),
+                    borderRadius: BorderRadius.circular(22),
                     border: Border.all(
-                      color: isInteractive ? theme.primaryAccent.withOpacity(0.15) : Colors.transparent,
+                      color: theme.textSecondary.withOpacity(0.1),
                     ),
                   ),
                   child: TextField(
                     controller: _textController,
                     minLines: 1,
-                    maxLines: 4,
+                    maxLines: 5,
                     enabled: isInteractive,
-                    style: TextStyle(color: theme.textPrimary, fontSize: 14),
+                    style: TextStyle(color: theme.textPrimary, fontSize: 16),
                     decoration: InputDecoration(
                       hintText: chatService.activeModel == null
-                          ? "Load model in sidebar to start"
+                          ? "Load a model to begin"
                           : chatService.isGenerating
-                              ? "Engine generating tokens..."
-                              : "Message offline AI...",
-                      hintStyle: TextStyle(color: theme.textSecondary.withOpacity(0.4), fontSize: 13.5),
+                              ? "Generating..."
+                              : "Message",
+                      hintStyle: TextStyle(color: theme.textSecondary.withOpacity(0.5), fontSize: 16),
                       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                       border: InputBorder.none,
                     ),
                   ),
                 ),
               ),
+
               const SizedBox(width: 8),
+
+              // Send / Stop button — 44pt
               if (chatService.isGenerating)
                 GestureDetector(
-                  onTap: () {
-                    // Stop C++ backend generation immediately
-                    chatService.stopEngineInference();
-                  },
+                  onTap: () => chatService.stopEngineInference(),
                   child: Container(
-                    padding: const EdgeInsets.all(12),
+                    width: 44,
+                    height: 44,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: Colors.redAccent.withOpacity(0.8),
-                      boxShadow: [
-                        BoxShadow(color: Colors.redAccent.withOpacity(0.4), blurRadius: 8, spreadRadius: 1)
-                      ],
+                      color: const Color(0xFFFF453A),
                     ),
-                    child: const Icon(
-                      Icons.stop_rounded,
-                      color: Colors.white,
-                      size: 18,
-                    ),
+                    child: const Icon(Icons.stop_rounded, color: Colors.white, size: 22),
                   ),
                 )
               else
                 GestureDetector(
                   onTap: isInteractive ? () => _handleSend(chatService) : null,
                   child: Container(
-                    padding: const EdgeInsets.all(12),
+                    width: 44,
+                    height: 44,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       gradient: isInteractive ? theme.bubbleGradient : null,
                       color: isInteractive ? null : theme.cardBg,
                     ),
                     child: Icon(
-                      Icons.send_rounded,
+                      Icons.arrow_upward_rounded,
                       color: isInteractive ? Colors.white : theme.textSecondary.withOpacity(0.3),
-                      size: 18,
+                      size: 22,
                     ),
                   ),
                 ),
@@ -1468,393 +1184,467 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
 
     return Drawer(
       backgroundColor: theme.scaffoldBg,
-      child: Column(
-        children: [
-          // Drawer Header
-          DrawerHeader(
-            decoration: BoxDecoration(color: theme.cardBg),
-            child: Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: theme.primaryAccent.withOpacity(0.1),
-                  ),
-                  child: Icon(Icons.offline_bolt_rounded, size: 30, color: theme.secondaryAccent),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        "Model Vault",
-                        style: TextStyle(fontWeight: FontWeight.w900, fontSize: 18, color: theme.textPrimary),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        "${installedModels.length} GGUF loaded",
-                        style: TextStyle(fontSize: 11, color: theme.textSecondary),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-          
-          if (_isImporting)
+      child: SafeArea(
+        child: Column(
+          children: [
+            // Header
             Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
+              padding: const EdgeInsets.fromLTRB(20, 16, 16, 12),
+              child: Row(
                 children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text("Copying GGUF to Sandbox...", style: TextStyle(fontSize: 11, color: theme.textPrimary)),
-                      Text("${(_importProgress * 100).toStringAsFixed(0)}%", style: TextStyle(fontWeight: FontWeight.bold, color: theme.primaryAccent)),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  LinearProgressIndicator(
-                    value: _importProgress,
-                    backgroundColor: theme.cardBg,
-                    color: theme.primaryAccent,
-                  ),
-                ],
-              ),
-            ),
-
-          if (_isDownloading)
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Expanded(
-                        child: Text(
-                          "Downloading $_downloadingModelName...",
-                          style: TextStyle(fontSize: 11, color: theme.textPrimary),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
+                  Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(10),
+                      child: Image.asset(
+                        'assets/app_icon.png',
+                        fit: BoxFit.cover,
+                        errorBuilder: (_, __, ___) => Container(
+                          color: theme.primaryAccent.withOpacity(0.12),
+                          child: Icon(Icons.folder_copy_rounded, size: 22, color: theme.primaryAccent),
                         ),
                       ),
-                      Text(
-                        "${(_downloadProgress * 100).toStringAsFixed(0)}%",
-                        style: TextStyle(fontWeight: FontWeight.bold, color: theme.secondaryAccent),
-                      ),
-                    ],
+                    ),
                   ),
-                  const SizedBox(height: 8),
-                  LinearProgressIndicator(
-                    value: _downloadProgress,
-                    backgroundColor: theme.cardBg,
-                    color: theme.secondaryAccent,
+                  const SizedBox(width: 14),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          "Model Vault",
+                          style: TextStyle(fontWeight: FontWeight.w700, fontSize: 18, color: theme.textPrimary),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          "${installedModels.length} models installed",
+                          style: TextStyle(fontSize: 13, color: theme.textSecondary),
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ),
             ),
+            
+            Divider(color: theme.textSecondary.withOpacity(0.1), height: 1),
 
-          // Double lists inside Drawer: Sessions history and Installed Models
-          Expanded(
-            child: ListView(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-              children: [
-                // 1. Thread Session manager
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            if (_isImporting)
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                child: Column(
                   children: [
-                    Text(
-                      "CHAT SESSIONS",
-                      style: TextStyle(
-                        fontSize: 10,
-                        fontWeight: FontWeight.w900,
-                        letterSpacing: 1.2,
-                        color: theme.textSecondary,
-                      ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text("Importing GGUF...", style: TextStyle(fontSize: 13, color: theme.textPrimary)),
+                        Text("${(_importProgress * 100).toStringAsFixed(0)}%", style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: theme.primaryAccent)),
+                      ],
                     ),
-                    GestureDetector(
-                      onTap: () => chatService.createNewSession(),
-                      child: Icon(Icons.add_circle_outline_rounded, color: theme.secondaryAccent, size: 16),
+                    const SizedBox(height: 8),
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(4),
+                      child: LinearProgressIndicator(
+                        value: _importProgress,
+                        backgroundColor: theme.cardBg,
+                        color: theme.primaryAccent,
+                        minHeight: 6,
+                      ),
                     ),
                   ],
                 ),
-                const SizedBox(height: 8),
+              ),
 
-                ...sessions.map((s) {
-                  final isActive = s.id == chatService.activeSessionId;
-                  return Container(
-                    margin: const EdgeInsets.only(bottom: 4),
-                    decoration: BoxDecoration(
-                      color: isActive ? theme.primaryAccent.withOpacity(0.08) : Colors.transparent,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: ListTile(
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 12),
-                      dense: true,
-                      title: Text(
-                        s.title,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          color: isActive ? theme.textPrimary : theme.textSecondary,
-                          fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
-                          fontSize: 12,
+            if (_isDownloading)
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                child: Column(
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          child: Text(
+                            "Downloading $_downloadingModelName...",
+                            style: TextStyle(fontSize: 13, color: theme.textPrimary),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
                         ),
-                      ),
-                      trailing: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          IconButton(
-                            icon: Icon(Icons.edit_outlined, size: 14, color: theme.textSecondary.withOpacity(0.5)),
-                            onPressed: () => _showRenameDialog(context, chatService, s.id, s.title, theme),
-                          ),
-                          IconButton(
-                            icon: Icon(Icons.delete_outline_rounded, size: 14, color: Colors.redAccent.withOpacity(0.6)),
-                            onPressed: () => chatService.deleteSession(s.id),
-                          ),
-                        ],
-                      ),
-                      onTap: () {
-                        chatService.selectSession(s.id);
-                        Navigator.pop(context);
-                      },
+                        Text(
+                          "${(_downloadProgress * 100).toStringAsFixed(0)}%",
+                          style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: theme.secondaryAccent),
+                        ),
+                      ],
                     ),
-                  );
-                }).toList(),
-
-                const SizedBox(height: 20),
-                Divider(color: theme.primaryAccent.withOpacity(0.1)),
-                const SizedBox(height: 12),
-
-                // 2. Installed Models Section
-                Text(
-                  "INSTALLED MODELS",
-                  style: TextStyle(
-                    fontSize: 10,
-                    fontWeight: FontWeight.w900,
-                    letterSpacing: 1.2,
-                    color: theme.textSecondary,
-                  ),
+                    const SizedBox(height: 8),
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(4),
+                      child: LinearProgressIndicator(
+                        value: _downloadProgress,
+                        backgroundColor: theme.cardBg,
+                        color: theme.secondaryAccent,
+                        minHeight: 6,
+                      ),
+                    ),
+                  ],
                 ),
-                const SizedBox(height: 8),
-                
-                if (installedModels.isEmpty)
-                  Card(
-                    color: theme.cardBg.withOpacity(0.3),
-                    elevation: 0,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
-                      side: BorderSide(color: theme.primaryAccent.withOpacity(0.08)),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(20.0),
-                      child: Column(
-                        children: [
-                          Icon(Icons.inventory_2_outlined, size: 24, color: theme.textSecondary.withOpacity(0.3)),
-                          const SizedBox(height: 8),
-                          Text(
-                            "No Models Installed",
-                            style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: theme.textPrimary),
+              ),
+
+            // Content list
+            Expanded(
+              child: ListView(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                children: [
+                  // 1. Thread Session manager
+                  Padding(
+                    padding: const EdgeInsets.only(top: 12, bottom: 8),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          "CHATS",
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                            letterSpacing: 0.5,
+                            color: theme.textSecondary.withOpacity(0.7),
                           ),
-                          const SizedBox(height: 4),
-                          Text(
-                            "Import a custom GGUF or download below.",
-                            textAlign: TextAlign.center,
-                            style: TextStyle(fontSize: 9.5, color: theme.textSecondary, height: 1.4),
+                        ),
+                        GestureDetector(
+                          onTap: () => chatService.createNewSession(),
+                          child: Container(
+                            width: 32,
+                            height: 32,
+                            alignment: Alignment.center,
+                            child: Icon(Icons.add_circle_rounded, color: theme.primaryAccent, size: 20),
                           ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
-                  )
-                else
-                  ...installedModels.map((m) {
-                    final isActive = chatService.activeModel?.path == m.path;
-                    return Card(
-                      color: isActive ? theme.primaryAccent.withOpacity(0.08) : theme.cardBg.withOpacity(0.5),
-                      elevation: 0,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(14),
-                        side: BorderSide(
-                          color: isActive ? theme.primaryAccent.withOpacity(0.4) : Colors.transparent,
-                          width: 1.5,
+                  ),
+
+                  ...sessions.map((s) {
+                    final isActive = s.id == chatService.activeSessionId;
+                    return Container(
+                      margin: const EdgeInsets.only(bottom: 6),
+                      decoration: BoxDecoration(
+                        color: isActive ? theme.primaryAccent.withOpacity(0.1) : theme.cardBg,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: isActive ? theme.primaryAccent.withOpacity(0.3) : theme.textSecondary.withOpacity(0.06),
+                          width: 0.5,
                         ),
                       ),
                       child: ListTile(
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 2),
                         dense: true,
-                        title: Row(
-                          children: [
-                            Flexible(
-                              child: Text(
-                                m.name,
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.bold,
-                                  color: theme.textPrimary,
-                                ),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ),
-                            if (m.isVision) ...[
-                              const SizedBox(width: 4),
-                              Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
-                                decoration: BoxDecoration(
-                                  color: theme.secondaryAccent.withOpacity(0.15),
-                                  borderRadius: BorderRadius.circular(4),
-                                  border: Border.all(color: theme.secondaryAccent.withOpacity(0.5), width: 0.5),
-                                ),
-                                child: Text("👁️ Vision", style: TextStyle(fontSize: 8, color: theme.secondaryAccent, fontWeight: FontWeight.bold)),
-                              ),
-                            ],
-                          ],
-                        ),
-                        subtitle: Text(
-                          "${m.quantization} • ${m.sizeInGB.toStringAsFixed(2)} GB",
-                          style: TextStyle(fontSize: 10, color: theme.textSecondary),
+                        title: Text(
+                          s.title,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            color: isActive ? theme.primaryAccent : theme.textPrimary,
+                            fontWeight: isActive ? FontWeight.w600 : FontWeight.w400,
+                            fontSize: 15,
+                          ),
                         ),
                         trailing: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            if (isActive && chatService.isModelLoaded)
-                              Icon(Icons.offline_pin_rounded, color: theme.secondaryAccent, size: 20)
-                            else if (isActive && !chatService.isModelLoaded)
-                              SizedBox(
-                                width: 14,
-                                height: 14,
-                                child: CircularProgressIndicator(strokeWidth: 2, color: theme.primaryAccent),
-                              )
-                            else
-                              IconButton(
-                                icon: const Icon(Icons.delete_outline_rounded, size: 18, color: Colors.redAccent),
-                                onPressed: () async {
-                                  await modelManager.deleteModel(m);
-                                  setState(() {});
-                                },
-                              )
+                            GestureDetector(
+                              onTap: () => _showRenameDialog(context, chatService, s.id, s.title, theme),
+                              child: Container(
+                                width: 36,
+                                height: 36,
+                                alignment: Alignment.center,
+                                child: Icon(Icons.edit_outlined, size: 16, color: theme.textSecondary.withOpacity(0.6)),
+                              ),
+                            ),
+                            GestureDetector(
+                              onTap: () => chatService.deleteSession(s.id),
+                              child: Container(
+                                width: 36,
+                                height: 36,
+                                alignment: Alignment.center,
+                                child: const Icon(Icons.delete_outline_rounded, size: 16, color: Color(0xFFFF453A)),
+                              ),
+                            ),
                           ],
                         ),
                         onTap: () {
-                          if (isActive) {
-                            chatService.unloadCurrentModel();
-                          } else {
-                            chatService.loadModel(m);
-                          }
+                          chatService.selectSession(s.id);
                           Navigator.pop(context);
                         },
                       ),
                     );
                   }).toList(),
 
-                const SizedBox(height: 24),
-                Divider(color: theme.primaryAccent.withOpacity(0.1)),
-                const SizedBox(height: 12),
+                  const SizedBox(height: 16),
 
-                // Section 3: Recommended Downloads
-                Text(
-                  "CLOUD DOWNLOAD VAULT",
-                  style: TextStyle(
-                    fontSize: 10,
-                    fontWeight: FontWeight.w900,
-                    letterSpacing: 1.2,
-                    color: theme.textSecondary,
-                  ),
-                ),
-                const SizedBox(height: 8),
-
-                ...recommendedModelsList.map((model) {
-                  return Padding(
-                    padding: const EdgeInsets.only(bottom: 8.0),
-                    child: _buildRecommendedModelCard(
-                      context,
-                      theme,
-                      name: model.name,
-                      quant: model.quant,
-                      url: model.url,
-                      filename: model.filename,
-                      isVision: model.isVision,
-                      installedModels: installedModels,
+                  // 2. Installed Models Section
+                  Padding(
+                    padding: const EdgeInsets.only(top: 8, bottom: 8),
+                    child: Text(
+                      "INSTALLED MODELS",
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                        letterSpacing: 0.5,
+                        color: theme.textSecondary.withOpacity(0.7),
+                      ),
                     ),
-                  );
-                }).toList(),
-              ],
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-            child: Column(
-              children: [
-                ElevatedButton.icon(
-                  icon: const Icon(Icons.local_library_rounded),
-                  label: const Text("Open GGUF Model Library"),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: theme.primaryAccent,
-                    foregroundColor: Colors.white,
-                    minimumSize: const Size(double.infinity, 50),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                    elevation: 3,
                   ),
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => GgufLibraryScreen(
-                          onDownloadRequested: (url, filename, isVision) {
-                            _handleDownload(context, url, filename, isVision: isVision);
-                          },
-                          onImportRequested: () => _handleImport(context),
+
+                  if (installedModels.isEmpty)
+                    Container(
+                      padding: const EdgeInsets.all(20),
+                      decoration: BoxDecoration(
+                        color: theme.cardBg,
+                        borderRadius: BorderRadius.circular(14),
+                        border: Border.all(color: theme.textSecondary.withOpacity(0.08), width: 0.5),
+                      ),
+                      child: Column(
+                        children: [
+                          Icon(Icons.inventory_2_outlined, size: 28, color: theme.textSecondary.withOpacity(0.4)),
+                          const SizedBox(height: 8),
+                          Text(
+                            "No Models Installed",
+                            style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: theme.textPrimary),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            "Download a model below or import a .gguf file.",
+                            textAlign: TextAlign.center,
+                            style: TextStyle(fontSize: 13, color: theme.textSecondary),
+                          ),
+                        ],
+                      ),
+                    )
+                  else
+                    ...installedModels.map((m) {
+                      final isActive = chatService.activeModel?.path == m.path;
+                      return Container(
+                        margin: const EdgeInsets.only(bottom: 6),
+                        decoration: BoxDecoration(
+                          color: isActive ? theme.primaryAccent.withOpacity(0.08) : theme.cardBg,
+                          borderRadius: BorderRadius.circular(14),
+                          border: Border.all(
+                            color: isActive ? theme.primaryAccent.withOpacity(0.4) : theme.textSecondary.withOpacity(0.08),
+                            width: isActive ? 1.0 : 0.5,
+                          ),
                         ),
+                        child: ListTile(
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
+                          dense: true,
+                          title: Row(
+                            children: [
+                              Flexible(
+                                child: Text(
+                                  m.name,
+                                  style: TextStyle(
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.w600,
+                                    color: theme.textPrimary,
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                              if (m.isVision) ...[
+                                const SizedBox(width: 6),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                  decoration: BoxDecoration(
+                                    color: theme.primaryAccent.withOpacity(0.12),
+                                    borderRadius: BorderRadius.circular(6),
+                                  ),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Icon(Icons.visibility_rounded, size: 11, color: theme.primaryAccent),
+                                      const SizedBox(width: 3),
+                                      Text("Vision", style: TextStyle(fontSize: 11, color: theme.primaryAccent, fontWeight: FontWeight.w600)),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ],
+                          ),
+                          subtitle: Padding(
+                            padding: const EdgeInsets.only(top: 2),
+                            child: Text(
+                              "${m.quantization} • ${m.sizeInGB.toStringAsFixed(2)} GB",
+                              style: TextStyle(fontSize: 13, color: theme.textSecondary),
+                            ),
+                          ),
+                          trailing: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              if (isActive && chatService.isModelLoaded)
+                                const Icon(Icons.check_circle_rounded, color: Color(0xFF30D158), size: 22)
+                              else if (isActive && !chatService.isModelLoaded)
+                                SizedBox(
+                                  width: 18,
+                                  height: 18,
+                                  child: CircularProgressIndicator(strokeWidth: 2, color: theme.primaryAccent),
+                                )
+                              else
+                                GestureDetector(
+                                  onTap: () async {
+                                    await modelManager.deleteModel(m);
+                                    setState(() {});
+                                  },
+                                  child: Container(
+                                    width: 44,
+                                    height: 44,
+                                    alignment: Alignment.center,
+                                    child: const Icon(Icons.trash_rounded, size: 18, color: Color(0xFFFF453A)),
+                                  ),
+                                )
+                            ],
+                          ),
+                          onTap: () {
+                            if (isActive) {
+                              chatService.unloadCurrentModel();
+                            } else {
+                              chatService.loadModel(m);
+                            }
+                            Navigator.pop(context);
+                          },
+                        ),
+                      );
+                    }).toList(),
+
+                  const SizedBox(height: 20),
+
+                  // Section 3: Recommended Downloads
+                  Padding(
+                    padding: const EdgeInsets.only(top: 8, bottom: 8),
+                    child: Text(
+                      "RECOMMENDED MODELS",
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                        letterSpacing: 0.5,
+                        color: theme.textSecondary.withOpacity(0.7),
+                      ),
+                    ),
+                  ),
+
+                  ...recommendedModelsList.map((model) {
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 6.0),
+                      child: _buildRecommendedModelCard(
+                        context,
+                        theme,
+                        name: model.name,
+                        quant: model.quant,
+                        url: model.url,
+                        filename: model.filename,
+                        isVision: model.isVision,
+                        installedModels: installedModels,
                       ),
                     );
-                  },
+                  }).toList(),
+                ],
+              ),
+            ),
+
+            // Bottom action buttons
+            Container(
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
+              decoration: BoxDecoration(
+                color: theme.scaffoldBg,
+                border: Border(
+                  top: BorderSide(color: theme.textSecondary.withOpacity(0.08), width: 0.5),
                 ),
-                const SizedBox(height: 10),
-                ElevatedButton.icon(
-                  icon: const Icon(Icons.search_rounded),
-                  label: const Text("Search Hugging Face"),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: theme.secondaryAccent.withOpacity(0.2),
-                    foregroundColor: theme.secondaryAccent,
-                    minimumSize: const Size(double.infinity, 46),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                    elevation: 0,
+              ),
+              child: Column(
+                children: [
+                  SizedBox(
+                    width: double.infinity,
+                    height: 50,
+                    child: ElevatedButton.icon(
+                      icon: const Icon(Icons.auto_stories_rounded, size: 20),
+                      label: const Text("Open Model Library", style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: theme.primaryAccent,
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                        elevation: 0,
+                      ),
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => GgufLibraryScreen(
+                              onDownloadRequested: (url, filename, isVision) {
+                                _handleDownload(context, url, filename, isVision: isVision);
+                              },
+                              onImportRequested: () => _handleImport(context),
+                            ),
+                          ),
+                        );
+                      },
+                    ),
                   ),
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => HuggingFaceSearchScreen(
-                          onDownloadRequested: (url, filename, isVision) {
-                            _handleDownload(context, url, filename, isVision: isVision);
-                          },
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: SizedBox(
+                          height: 44,
+                          child: OutlinedButton.icon(
+                            icon: const Icon(Icons.search_rounded, size: 18),
+                            label: const Text("Hugging Face", style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500)),
+                            style: OutlinedButton.styleFrom(
+                              foregroundColor: theme.textPrimary,
+                              side: BorderSide(color: theme.textSecondary.withOpacity(0.15)),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                            ),
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => HuggingFaceSearchScreen(
+                                    onDownloadRequested: (url, filename, isVision) {
+                                      _handleDownload(context, url, filename, isVision: isVision);
+                                    },
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
                         ),
                       ),
-                    );
-                  },
-                ),
-                const SizedBox(height: 10),
-                OutlinedButton.icon(
-                  icon: const Icon(Icons.add_circle_outline_rounded),
-                  label: const Text("Import Custom GGUF"),
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: theme.textPrimary,
-                    side: BorderSide(color: theme.primaryAccent.withOpacity(0.3)),
-                    minimumSize: const Size(double.infinity, 46),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: SizedBox(
+                          height: 44,
+                          child: OutlinedButton.icon(
+                            icon: const Icon(Icons.file_upload_outlined, size: 18),
+                            label: const Text("Import File", style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500)),
+                            style: OutlinedButton.styleFrom(
+                              foregroundColor: theme.textPrimary,
+                              side: BorderSide(color: theme.textSecondary.withOpacity(0.15)),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                            ),
+                            onPressed: _isImporting || _isDownloading ? null : () => _handleImport(context),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                  onPressed: _isImporting || _isDownloading ? null : () => _handleImport(context),
-                ),
-                const SizedBox(height: 16),
-              ],
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -1870,32 +1660,32 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
     required List<GgufModel> installedModels,
   }) {
     final isInstalled = installedModels.any((m) => m.path.endsWith(filename));
-    // _downloadingModelName is derived from the filename, so compare against filename
     final expectedDownloadingName = filename.replaceAll('.gguf', '').replaceAll('_', ' ');
     final isThisDownloading = _isDownloading && _downloadingModelName == expectedDownloadingName;
 
     return Container(
-      padding: const EdgeInsets.all(10),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
       decoration: BoxDecoration(
-        color: theme.cardBg.withOpacity(0.5),
+        color: theme.cardBg,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: theme.primaryAccent.withOpacity(0.08)),
+        border: Border.all(color: theme.textSecondary.withOpacity(0.08), width: 0.5),
       ),
       child: Row(
         children: [
           Container(
-            padding: const EdgeInsets.all(6),
+            width: 36,
+            height: 36,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: isInstalled ? Colors.green.withOpacity(0.1) : theme.primaryAccent.withOpacity(0.1),
+              color: isInstalled ? const Color(0xFF30D158).withOpacity(0.12) : theme.primaryAccent.withOpacity(0.1),
             ),
             child: Icon(
-              isInstalled ? Icons.cloud_done_rounded : Icons.cloud_download_rounded,
-              size: 16,
-              color: isInstalled ? Colors.greenAccent[400] : theme.primaryAccent,
+              isInstalled ? Icons.check_circle_rounded : Icons.cloud_download_rounded,
+              size: 18,
+              color: isInstalled ? const Color(0xFF30D158) : theme.primaryAccent,
             ),
           ),
-          const SizedBox(width: 10),
+          const SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -1905,19 +1695,19 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                     Flexible(
                       child: Text(
                         name,
-                        style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: theme.textPrimary),
+                        style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: theme.textPrimary),
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
                     if (isVision) ...[
-                      const SizedBox(width: 4),
+                      const SizedBox(width: 6),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+                        padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
                         decoration: BoxDecoration(
-                          color: theme.secondaryAccent.withOpacity(0.15),
+                          color: theme.primaryAccent.withOpacity(0.12),
                           borderRadius: BorderRadius.circular(4),
                         ),
-                        child: Text("👁️ Vision", style: TextStyle(fontSize: 8, color: theme.secondaryAccent, fontWeight: FontWeight.bold)),
+                        child: Text("Vision", style: TextStyle(fontSize: 10, color: theme.primaryAccent, fontWeight: FontWeight.w600)),
                       ),
                     ],
                   ],
@@ -1925,31 +1715,34 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                 const SizedBox(height: 2),
                 Text(
                   quant,
-                  style: TextStyle(fontSize: 9, color: theme.textSecondary),
+                  style: TextStyle(fontSize: 13, color: theme.textSecondary),
                 ),
               ],
             ),
           ),
           if (isThisDownloading)
             SizedBox(
-              width: 20,
-              height: 20,
+              width: 24,
+              height: 24,
               child: CircularProgressIndicator(
                 value: _downloadProgress,
-                strokeWidth: 2,
+                strokeWidth: 2.5,
                 color: theme.secondaryAccent,
               ),
             )
           else if (isInstalled)
-            Icon(Icons.check_circle_rounded, color: Colors.greenAccent[400], size: 18)
+            const Icon(Icons.check_rounded, color: Color(0xFF30D158), size: 22)
           else
-            IconButton(
-              icon: Icon(Icons.download_rounded, color: theme.primaryAccent, size: 18),
-              padding: EdgeInsets.zero,
-              constraints: const BoxConstraints(),
-              onPressed: _isDownloading || _isImporting
+            GestureDetector(
+              onTap: _isDownloading || _isImporting
                   ? null
                   : () => _handleDownload(context, url, filename, isVision: isVision),
+              child: Container(
+                width: 44,
+                height: 44,
+                alignment: Alignment.center,
+                child: Icon(Icons.arrow_downward_rounded, color: theme.primaryAccent, size: 20),
+              ),
             ),
         ],
       ),
