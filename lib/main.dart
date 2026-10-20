@@ -1503,7 +1503,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                                     width: 44,
                                     height: 44,
                                     alignment: Alignment.center,
-                                    child: const Icon(Icons.trash_rounded, size: 18, color: Color(0xFFFF453A)),
+                                    child: const Icon(Icons.delete_outline_rounded, size: 18, color: Color(0xFFFF453A)),
                                   ),
                                 )
                             ],
