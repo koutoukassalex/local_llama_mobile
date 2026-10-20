@@ -97,7 +97,7 @@ class _GgufLibraryScreenState extends State<GgufLibraryScreen> {
     final theme = ThemeProviderBridge.of(context).activeTheme;
     final chatService = Provider.of<ChatService>(context);
     final modelManager = Provider.of<ModelManager>(context);
-    final installedModels = modelManager.installedModels;
+    final installedModels = modelManager.models;
     final filteredList = _getFilteredCatalog();
 
     return Scaffold(
@@ -116,7 +116,7 @@ class _GgufLibraryScreenState extends State<GgufLibraryScreen> {
             ),
           ],
         ),
-        backgroundColor: theme.appBarBg,
+        backgroundColor: theme.scaffoldBg,
         foregroundColor: theme.textPrimary,
         elevation: 0,
         actions: [
