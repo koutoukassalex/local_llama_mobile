@@ -47,13 +47,17 @@ class _GgufLibraryScreenState extends State<GgufLibraryScreen> {
   }
 
   void _detectInitialRamTier() {
-    final cores = Platform.numberOfProcessors;
-    if (cores >= 8) {
-      _currentRamTier = DeviceRamTier.flagship;
-    } else if (cores >= 6) {
+    try {
+      final cores = Platform.numberOfProcessors;
+      if (cores >= 8) {
+        _currentRamTier = DeviceRamTier.flagship;
+      } else if (cores >= 6) {
+        _currentRamTier = DeviceRamTier.balanced;
+      } else {
+        _currentRamTier = DeviceRamTier.budget;
+      }
+    } catch (_) {
       _currentRamTier = DeviceRamTier.balanced;
-    } else {
-      _currentRamTier = DeviceRamTier.budget;
     }
   }
 
@@ -94,7 +98,8 @@ class _GgufLibraryScreenState extends State<GgufLibraryScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = ThemeProviderBridge.of(context).activeTheme;
+    final themeBridge = ThemeProviderBridge.maybeOf(context);
+    final theme = themeBridge?.activeTheme ?? appThemesList.first;
     final chatService = Provider.of<ChatService>(context);
     final modelManager = Provider.of<ModelManager>(context);
     final installedModels = modelManager.models;
@@ -382,7 +387,7 @@ class _GgufLibraryScreenState extends State<GgufLibraryScreen> {
     ChatService chatService,
     ModelManager modelManager,
   ) {
-    final installedMatch = installedModels.where((m) => m.path.endsWith(item.filename)).toList();
+    final installedMatch = installedModels.where((m) => m.path.toLowerCase().endsWith(item.filename.toLowerCase())).toList();
     final isInstalled = installedMatch.isNotEmpty;
     final installedModel = isInstalled ? installedMatch.first : null;
     final isLoaded = isInstalled && chatService.activeModel?.path == installedModel?.path;
@@ -582,6 +587,13 @@ class _GgufLibraryScreenState extends State<GgufLibraryScreen> {
                     ),
                     onPressed: () {
                       widget.onDownloadRequested(item.url, item.filename, item.isVision);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text("Starting download for ${item.name}..."),
+                          backgroundColor: const Color(0xFF10B981),
+                          duration: const Duration(seconds: 2),
+                        ),
+                      );
                       Navigator.pop(context);
                     },
                     child: const Text(

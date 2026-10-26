@@ -1,8 +1,11 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 import 'dart:math' as math;
 import 'package:flutter/foundation.dart';
 import 'package:uuid/uuid.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:path/path.dart' as p;
 import 'package:flutter_background/flutter_background.dart';
 import 'package:audio_session/audio_session.dart';
 import '../ffi/llama_isolate.dart';
@@ -18,6 +21,8 @@ class ChatService extends ChangeNotifier {
   // Multi-thread Chat Sessions
   final List<ChatSession> _sessions = [];
   String? _activeSessionId;
+  late final File _sessionsFile;
+  bool _isSessionsLoaded = false;
 
   List<ChatSession> get sessions => List.unmodifiable(_sessions);
   String? get activeSessionId => _activeSessionId;
@@ -160,8 +165,82 @@ class ChatService extends ChangeNotifier {
       debugPrint("Background init failed: $e");
     }
 
-    // Create an initial clean session
-    createNewSession(title: "First Thread");
+    // Load persisted chat sessions from disk
+    try {
+      final appDocDir = await getApplicationDocumentsDirectory();
+      _sessionsFile = File(p.join(appDocDir.path, 'chat_sessions.json'));
+      await _loadSessions();
+    } catch (e) {
+      debugPrint("[ChatService] Failed to initialize chat sessions: $e");
+      if (_sessions.isEmpty) {
+        createNewSession(title: "First Thread");
+      }
+    }
+  }
+
+  /// Load persisted chat sessions from JSON storage
+  Future<void> _loadSessions() async {
+    if (await _sessionsFile.exists()) {
+      try {
+        final jsonStr = await _sessionsFile.readAsString();
+        if (jsonStr.trim().isNotEmpty) {
+          final decoded = jsonDecode(jsonStr);
+          if (decoded is Map<String, dynamic>) {
+            final rawSessions = decoded['sessions'] as List<dynamic>? ?? [];
+            _sessions.clear();
+            for (final item in rawSessions) {
+              if (item is Map<String, dynamic>) {
+                final session = ChatSession.fromJson(item);
+                // Filter out any incomplete blank AI placeholders from unexpected crash
+                final cleaned = session.messages.where((m) => m.isUser || m.text.isNotEmpty).toList();
+                _sessions.add(session.copyWith(messages: cleaned));
+              }
+            }
+            final savedActiveId = decoded['activeSessionId'] as String?;
+            if (savedActiveId != null && _sessions.any((s) => s.id == savedActiveId)) {
+              _activeSessionId = savedActiveId;
+            } else if (_sessions.isNotEmpty) {
+              _activeSessionId = _sessions.first.id;
+            }
+          } else if (decoded is List<dynamic>) {
+            _sessions.clear();
+            for (final item in decoded) {
+              if (item is Map<String, dynamic>) {
+                _sessions.add(ChatSession.fromJson(item));
+              }
+            }
+            if (_sessions.isNotEmpty) {
+              _activeSessionId = _sessions.first.id;
+            }
+          }
+        }
+      } catch (e) {
+        debugPrint("[ChatService] Error loading sessions: $e");
+      }
+    }
+
+    _isSessionsLoaded = true;
+
+    // Create an initial clean session if none existed
+    if (_sessions.isEmpty) {
+      createNewSession(title: "First Thread");
+    } else {
+      notifyListeners();
+    }
+  }
+
+  /// Persist current chat sessions to disk
+  Future<void> _saveSessions() async {
+    if (!_isSessionsLoaded) return;
+    try {
+      final payload = {
+        'activeSessionId': _activeSessionId,
+        'sessions': _sessions.map((s) => s.toJson()).toList(),
+      };
+      await _sessionsFile.writeAsString(jsonEncode(payload), flush: true);
+    } catch (e) {
+      debugPrint("[ChatService] Error saving sessions: $e");
+    }
   }
 
   /// Create a fresh new chat conversation session
@@ -175,6 +254,7 @@ class ChatService extends ChangeNotifier {
     _sessions.insert(0, newSession); // Put newer threads at the top
     _activeSessionId = newSession.id;
     _stopInference(); // Interrupt any generation on previous threads
+    _saveSessions();
     notifyListeners();
   }
 
@@ -183,6 +263,7 @@ class ChatService extends ChangeNotifier {
     if (_sessions.any((s) => s.id == id)) {
       _activeSessionId = id;
       _stopInference();
+      _saveSessions();
       notifyListeners();
     }
   }
@@ -195,8 +276,10 @@ class ChatService extends ChangeNotifier {
         _activeSessionId = _sessions.first.id;
       } else {
         createNewSession(title: "New Conversation");
+        return; // createNewSession already saves
       }
     }
+    _saveSessions();
     notifyListeners();
   }
 
@@ -205,6 +288,7 @@ class ChatService extends ChangeNotifier {
     final idx = _sessions.indexWhere((s) => s.id == id);
     if (idx != -1) {
       _sessions[idx] = _sessions[idx].copyWith(title: newTitle);
+      _saveSessions();
       notifyListeners();
     }
   }
@@ -261,7 +345,7 @@ class ChatService extends ChangeNotifier {
   }
 
   /// Sends the prompt to the background isolate and registers the stream response listener
-  Future<void> sendMessage(String text) async {
+  Future<void> sendMessage(String text, {String? augmentedPrompt, bool isWebSearch = false}) async {
     if (text.trim().isEmpty || _isGenerating || !_isModelLoaded || _activeModel == null || _activeSessionId == null) return;
 
     final activeSessionIdx = _sessions.indexWhere((s) => s.id == _activeSessionId);
@@ -273,6 +357,7 @@ class ChatService extends ChangeNotifier {
       text: text,
       isUser: true,
       timestamp: DateTime.now(),
+      isWebSearch: isWebSearch,
     );
     
     final currentSession = _sessions[activeSessionIdx];
@@ -291,6 +376,7 @@ class ChatService extends ChangeNotifier {
       title: newTitle,
     );
     _isGenerating = true;
+    _saveSessions();
     notifyListeners();
 
     // 2. Format Context using GGUF Model Specific Template
@@ -301,9 +387,14 @@ class ChatService extends ChangeNotifier {
     // Collect last 6 messages to stay within context windows and minimize prompt processing cost
     final recentMessages = updatedMessages.length > 6 ? updatedMessages.sublist(updatedMessages.length - 6) : updatedMessages;
     for (var msg in recentMessages) {
+      String content = msg.text;
+      // If this is the current prompt and live web search findings were retrieved, inject them into model context
+      if (msg.id == userMessage.id && augmentedPrompt != null && augmentedPrompt.isNotEmpty) {
+        content = augmentedPrompt;
+      }
       history.add({
         'role': msg.isUser ? 'user' : 'assistant',
-        'content': msg.text,
+        'content': content,
       });
     }
 
@@ -355,6 +446,7 @@ class ChatService extends ChangeNotifier {
         _isGenerating = false;
         aiMessage = aiMessage.copyWith(text: "Inference Error: ${event.error}");
         _updateMessage(aiMessage);
+        _saveSessions();
         return;
       }
 
@@ -366,6 +458,7 @@ class ChatService extends ChangeNotifier {
         // Final flush of any remaining buffer
         aiMessage = aiMessage.copyWith(text: aiBuffer.toString());
         _updateMessage(aiMessage);
+        _saveSessions();
         notifyListeners();
         return;
       }
@@ -409,6 +502,7 @@ class ChatService extends ChangeNotifier {
     _tokenSubscription?.cancel();
     _tokenSubscription = null;
     _isGenerating = false;
+    _saveSessions();
     notifyListeners();
     
     // Deactivate Background Keep-Alive
@@ -429,6 +523,7 @@ class ChatService extends ChangeNotifier {
     if (activeSessionIdx != -1) {
       _sessions[activeSessionIdx] = _sessions[activeSessionIdx].copyWith(messages: []);
       _stopInference();
+      _saveSessions();
       notifyListeners();
     }
   }

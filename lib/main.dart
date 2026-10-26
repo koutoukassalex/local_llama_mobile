@@ -15,13 +15,17 @@ import 'core/services/setup_screen.dart';
 import 'core/ui/settings_sheet.dart';
 import 'core/ui/huggingface_search_screen.dart';
 import 'core/ui/gguf_library_screen.dart';
+import 'core/services/internet_search_service.dart';
 import 'package:path_provider/path_provider.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
   runApp(
-    ChangeNotifierProvider(
-      create: (_) => ChatService(),
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider.value(value: ModelManager()),
+        ChangeNotifierProvider(create: (_) => ChatService()),
+      ],
       child: const LocalAIChatbotApp(),
     ),
   );
@@ -316,16 +320,19 @@ class _LocalAIChatbotAppState extends State<LocalAIChatbotApp> {
           onSurface: activeTheme.textPrimary,
         ),
       ),
-      home: ThemeProviderBridge(
-        activeTheme: activeTheme,
-        activeThemeIndex: _activeThemeIndex,
-        onThemeChanged: (idx) {
-          setState(() {
-            _activeThemeIndex = idx;
-          });
-        },
-        child: homeWidget,
-      ),
+      builder: (context, child) {
+        return ThemeProviderBridge(
+          activeTheme: activeTheme,
+          activeThemeIndex: _activeThemeIndex,
+          onThemeChanged: (idx) {
+            setState(() {
+              _activeThemeIndex = idx;
+            });
+          },
+          child: child ?? const SizedBox.shrink(),
+        );
+      },
+      home: homeWidget,
     );
   }
 }
@@ -345,7 +352,18 @@ class ThemeProviderBridge extends InheritedWidget {
   });
 
   static ThemeProviderBridge of(BuildContext context) {
-    return context.dependOnInheritedWidgetOfExactType<ThemeProviderBridge>()!;
+    final bridge = context.dependOnInheritedWidgetOfExactType<ThemeProviderBridge>();
+    if (bridge != null) return bridge;
+    return ThemeProviderBridge(
+      activeTheme: appThemesList.first,
+      activeThemeIndex: 0,
+      onThemeChanged: (_) {},
+      child: const SizedBox.shrink(),
+    );
+  }
+
+  static ThemeProviderBridge? maybeOf(BuildContext context) {
+    return context.dependOnInheritedWidgetOfExactType<ThemeProviderBridge>();
   }
 
   @override
@@ -376,6 +394,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
   
   // Interactive feature states
   bool _webSearchEnabled = false;
+  bool _isSearchingWeb = false;
   String? _selectedImagePath;
 
   // Simulated Text-To-Speech (TTS) Engine States
@@ -418,19 +437,47 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
     });
   }
 
-  void _handleSend(ChatService chatService) {
+  Future<void> _handleSend(ChatService chatService) async {
     final text = _textController.text;
     if (text.trim().isEmpty) return;
 
     _textController.clear();
+    _scrollToBottom();
     
-    // Append internet context mock tags if Web Search is active
-    String promptText = text;
+    String? augmentedPrompt;
+    bool usedWeb = false;
+
+    // Perform live internet search if Web Search is active
     if (_webSearchEnabled) {
-      promptText = "[RAG ACTIVE: Searching Offline KB Databases] $text";
+      setState(() {
+        _isSearchingWeb = true;
+      });
+      try {
+        final webFindings = await InternetSearchService().search(text);
+        if (webFindings != null && webFindings.isNotEmpty) {
+          augmentedPrompt = webFindings;
+          usedWeb = true;
+        }
+      } catch (e) {
+        debugPrint("[WebSearch] Search error: $e");
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text("Internet search timed out. Answering with offline model weights."),
+              duration: Duration(seconds: 2),
+            ),
+          );
+        }
+      } finally {
+        if (mounted) {
+          setState(() {
+            _isSearchingWeb = false;
+          });
+        }
+      }
     }
 
-    chatService.sendMessage(promptText);
+    chatService.sendMessage(text, augmentedPrompt: augmentedPrompt, isWebSearch: usedWeb);
     
     setState(() {
       _selectedImagePath = null; // Clear image attachment placeholder
@@ -644,6 +691,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
     final themeBridge = ThemeProviderBridge.of(context);
     final theme = themeBridge.activeTheme;
     final chatService = Provider.of<ChatService>(context);
+    final modelManager = Provider.of<ModelManager>(context);
 
     if (chatService.isGenerating) {
       _scrollToBottom();
@@ -741,7 +789,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
           ),
         ],
       ),
-      drawer: _buildModelDrawer(context, chatService, themeBridge),
+      drawer: _buildModelDrawer(context, chatService, modelManager, themeBridge),
       body: Container(
         decoration: BoxDecoration(gradient: theme.backgroundGradient),
         child: SafeArea(
@@ -870,7 +918,48 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
               ),
             ),
             const SizedBox(height: 36),
-            if (chatService.activeModel == null) ...[
+            if (_isDownloading) ...[
+              Container(
+                margin: const EdgeInsets.symmetric(vertical: 16),
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: theme.cardBg,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: theme.primaryAccent.withOpacity(0.3), width: 1),
+                ),
+                child: Column(
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          child: Text(
+                            "Downloading $_downloadingModelName...",
+                            style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: theme.textPrimary),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        Text(
+                          "${(_downloadProgress * 100).toStringAsFixed(0)}%",
+                          style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: theme.primaryAccent),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 10),
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(6),
+                      child: LinearProgressIndicator(
+                        value: _downloadProgress,
+                        backgroundColor: theme.cardBg,
+                        color: theme.primaryAccent,
+                        minHeight: 8,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ] else if (chatService.activeModel == null) ...[
               SizedBox(
                 width: double.infinity,
                 height: 50,
@@ -958,6 +1047,32 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  if (msg.isWebSearch)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 6),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: (isUser ? Colors.white : const Color(0xFF10B981)).withOpacity(0.18),
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.language_rounded, size: 12, color: isUser ? Colors.white : const Color(0xFF10B981)),
+                            const SizedBox(width: 4),
+                            Text(
+                              "Live Web Search",
+                              style: TextStyle(
+                                fontSize: 11,
+                                fontWeight: FontWeight.w600,
+                                color: isUser ? Colors.white : const Color(0xFF10B981),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
                   Text(
                     msg.text,
                     style: TextStyle(
@@ -1088,10 +1203,44 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
               ),
             ),
 
+          // Live Web Search active pill
+          if (_webSearchEnabled)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 6),
+              child: Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF10B981).withOpacity(0.12),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: const Color(0xFF10B981).withOpacity(0.3), width: 0.5),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(Icons.language_rounded, color: Color(0xFF10B981), size: 14),
+                        const SizedBox(width: 6),
+                        const Text(
+                          "Live Web Search Enabled",
+                          style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Color(0xFF10B981)),
+                        ),
+                        const SizedBox(width: 6),
+                        GestureDetector(
+                          onTap: () => setState(() => _webSearchEnabled = false),
+                          child: const Icon(Icons.close_rounded, size: 14, color: Color(0xFF10B981)),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
           Row(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              // Accessory buttons
+              // Accessory buttons: Attach image
               IconButton(
                 icon: Icon(
                   Icons.add_circle_rounded,
@@ -1100,6 +1249,46 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                 ),
                 tooltip: "Attach",
                 onPressed: isInteractive ? _pickAttachmentImage : null,
+                constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
+              ),
+
+              // Live Web Search Toggle button
+              IconButton(
+                icon: Icon(
+                  _webSearchEnabled ? Icons.language_rounded : Icons.public_off_rounded,
+                  color: _webSearchEnabled ? const Color(0xFF10B981) : theme.textSecondary,
+                  size: 24,
+                ),
+                tooltip: _webSearchEnabled ? "Live Web Search: Active" : "Live Web Search: Inactive",
+                onPressed: isInteractive
+                    ? () {
+                        setState(() {
+                          _webSearchEnabled = !_webSearchEnabled;
+                        });
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Row(
+                              children: [
+                                Icon(
+                                  _webSearchEnabled ? Icons.language_rounded : Icons.public_off_rounded,
+                                  color: Colors.white,
+                                  size: 18,
+                                ),
+                                const SizedBox(width: 8),
+                                Text(
+                                  _webSearchEnabled
+                                      ? "Internet Search Enabled — AI fetches live web data."
+                                      : "Internet Search Disabled — Offline LLM mode.",
+                                  style: const TextStyle(fontWeight: FontWeight.w500),
+                                ),
+                              ],
+                            ),
+                            duration: const Duration(seconds: 2),
+                            backgroundColor: _webSearchEnabled ? const Color(0xFF10B981) : theme.cardBg,
+                          ),
+                        );
+                      }
+                    : null,
                 constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
               ),
 
@@ -1112,7 +1301,9 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                     color: theme.cardBg,
                     borderRadius: BorderRadius.circular(22),
                     border: Border.all(
-                      color: theme.textSecondary.withOpacity(0.1),
+                      color: _webSearchEnabled
+                          ? const Color(0xFF10B981).withOpacity(0.4)
+                          : theme.textSecondary.withOpacity(0.1),
                     ),
                   ),
                   child: TextField(
@@ -1122,11 +1313,15 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                     enabled: isInteractive,
                     style: TextStyle(color: theme.textPrimary, fontSize: 16),
                     decoration: InputDecoration(
-                      hintText: chatService.activeModel == null
-                          ? "Load a model to begin"
-                          : chatService.isGenerating
-                              ? "Generating..."
-                              : "Message",
+                      hintText: _isSearchingWeb
+                          ? "Searching the live internet..."
+                          : chatService.activeModel == null
+                              ? "Load a model to begin"
+                              : chatService.isGenerating
+                                  ? "Generating..."
+                                  : _webSearchEnabled
+                                      ? "Ask anything with live web access..."
+                                      : "Message",
                       hintStyle: TextStyle(color: theme.textSecondary.withOpacity(0.5), fontSize: 16),
                       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                       border: InputBorder.none,
@@ -1138,15 +1333,29 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
               const SizedBox(width: 8),
 
               // Send / Stop button — 44pt
-              if (chatService.isGenerating)
+              if (_isSearchingWeb)
+                Container(
+                  width: 44,
+                  height: 44,
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: const Color(0xFF10B981).withOpacity(0.18),
+                  ),
+                  child: const CircularProgressIndicator(
+                    strokeWidth: 2.5,
+                    color: Color(0xFF10B981),
+                  ),
+                )
+              else if (chatService.isGenerating)
                 GestureDetector(
                   onTap: () => chatService.stopEngineInference(),
                   child: Container(
                     width: 44,
                     height: 44,
-                    decoration: BoxDecoration(
+                    decoration: const BoxDecoration(
                       shape: BoxShape.circle,
-                      color: const Color(0xFFFF453A),
+                      color: Color(0xFFFF453A),
                     ),
                     child: const Icon(Icons.stop_rounded, color: Colors.white, size: 22),
                   ),
@@ -1176,9 +1385,8 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
     );
   }
 
-  Widget _buildModelDrawer(BuildContext context, ChatService chatService, ThemeProviderBridge themeBridge) {
+  Widget _buildModelDrawer(BuildContext context, ChatService chatService, ModelManager modelManager, ThemeProviderBridge themeBridge) {
     final theme = themeBridge.activeTheme;
-    final modelManager = ModelManager();
     final installedModels = modelManager.models;
     final sessions = chatService.sessions;
 
